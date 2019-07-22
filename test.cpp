@@ -10,7 +10,7 @@ using namespace std;
 /* FUNCOES AUXILIARES */
 void linspace(int array[], int size){
     for (int i = 0; i < size; i++){
-        array[i]=270+270*i;
+        array[i]=10000+10000*i;
 }}
 
 void print(int A[], int len_A) { 
@@ -36,6 +36,10 @@ void build_array (int A[], int n, string order_type){
     }
     else 
         cout << "\nPLEASE CHOOSE A CORRECT ORDER\n";
+}
+
+void swap (int &a, int &b ){
+  int c=a; a=b; b=c;
 }
 
 /* ALGORITMOS DE ORDENAMENTO */
@@ -117,9 +121,16 @@ int partition(int *a,int start,int end){
      return pivot_iter;
  }
 
+int randomizer(int A[], int start, int end){ 
+    srand(time(NULL)); 
+    int random = start + rand() % (end - start); 
+    swap(A[random], A[end]); 
+    return partition(A, start, end); 
+}
+
 void quick_sort(int A[], int start, int end) { 
 	if (start < end)  { 
-		int separator = partition(A, start, end); 
+		int separator = randomizer(A, start, end); 
 		quick_sort(A, start, separator - 1); 
 		quick_sort(A, separator + 1, end); 
 	} 
@@ -154,9 +165,9 @@ int main() {
     string order_type,file_name;
     
     //1o loop escolhe entre 3 ordenamentos do array original: random, ascending ou descending
-    for (int h =0; h<3; h++){
-        ss.str("");
-        ss.clear();
+    for (int h =0; h<=2; h++){
+        ss.str(""); // limpa a variavel do stringstream
+        ss.clear(); // limpa a variavel do stringstream
         if (h == 0){order_type = {"random"};}
         if (h == 1){order_type = {"ascending"};}
         if (h == 2){order_type = {"descending"};}
@@ -170,7 +181,7 @@ int main() {
             int arr_len = sets[i];
             
             //3o loop escolhe entre 3 algoritmos de ordenamento: insertionsort, mergesort, quicksort
-            for (int j =0; j<3; j++){
+            for (int j =0; j<=2; j++){
                 int A[arr_len]={};
                 build_array(A, arr_len, order_type);
                 
@@ -185,10 +196,9 @@ int main() {
                 bool is_sorting = is_sorted(A,arr_len);
                 out << timerun << ","; // salva o timerun do algoritmo
             }
-            out << endl; // termina a linha com 3 timerun para cada algoritmo
+            out << endl; // termina a linha com 3 timerun para cada algoritmo, conforme o tamanho do array
         }
-        out.close(); // fecha o arquivo no loop
+        out.close(); // fecha o arquivo csv no loop
     }
 	return 0; 
 } 
-
