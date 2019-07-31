@@ -102,3 +102,11 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+#Marcelo files
+drafts-insertion&merge&quick.cpp
+hw1_template.pdf
+hw2_template.pdf
+*.aux
+*.synctex.gz
+hw1/pythonrandom.csv

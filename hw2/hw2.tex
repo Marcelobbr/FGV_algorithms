@@ -1,0 +1,149 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage[utf8]{inputenc}
+\usepackage{fullpage}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+\usepackage{enumitem}
+
+
+\definecolor{mygreen}{rgb}{0,0.6,0}
+
+% set the default code style
+\lstset{
+    language=C++,
+    frame=tb, % draw a frame at the top and bottom of the code block
+    tabsize=4, % tab space width
+    showstringspaces=false, % don't mark spaces in strings
+    numbers=left, % display line numbers on the left
+    commentstyle=\color{mygreen}, % comment color
+    keywordstyle=\color{blue}, % keyword color
+    stringstyle=\color{red}, % string color
+    backgroundcolor=\color{black!5}, % set backgroundcolor
+    basicstyle=\footnotesize,% basic font setting
+}
+
+\parindent0in
+\pagestyle{plain}
+\thispagestyle{plain}
+
+\newcommand{\assignment}{Homework 2}
+\newcommand{\duedate}{August 13, 2019}
+
+
+% \renewcommand\thesubsection{\arabic{subsection}}
+
+\title{Homework 2}
+\date{}
+
+\begin{document}
+
+Fundação Getulio Vargas\hfill\\
+Estruturas de Dados e Algoritmos\hfill\textbf{\assignment}\\
+Prof.\ Jorge Poco\hfill\textbf{Due:}: \duedate\\
+\smallskip\hrule\bigskip
+
+{\let\newpage\relax\maketitle}
+\maketitle
+
+
+\section{Red-Black Trees}
+
+I am attaching a binary tree source code (\texttt{bst-0.0.cpp}) with the methods insert, delete and print. Your job would be to implement a Red-Black Tree with the functions insert, remove and print. 
+
+To test your code you can follow the examples described in the document \texttt{anexo1.pdf}. In addition, you might be interested in the document \texttt{anexo2.pdf} for a more detailed description of this tree, there is also some Java code that might be useful. 
+
+Note, your code must be implemented in C++ and based in the BST class I'm providing you. Grading would be as follow:
+
+\begin{enumerate}[label=(\alph*)]
+  \item \textbf{(2.5pts)} insert 
+  \item \textbf{(2.5pts)} remove 
+\end{enumerate}
+
+An example of the main function is: 
+
+\begin{lstlisting}
+int main() {
+  // this constructor must call the function insert multiple times 
+  // respecting the order
+  RBTree tree(41, 38, 31, 12, 19, 8);
+  tree.print();
+
+  // testing the remove function
+  tree.remove(8);
+  tree.print();
+}
+\end{lstlisting}
+
+
+
+
+\section{Radix Sort}
+
+\textbf{(2pts) }Your job is to implement the radix sort algorithm in Python. The following code is going to be used to test your implementation. You have to submit a notebook with your code. 
+  
+\begin{lstlisting}[language=Python]
+def radix_sort(A, d, k):
+  # A consists of n d-digit ints, with digits ranging 0 -> k-1
+  #
+  # implement your code here
+  # return A_sorted
+
+
+# Testing your function
+A = [201, 10, 3, 100]
+A_sorted = radix_sort(A, 3, 10)
+print(A_sorted)
+# output: [3, 10, 100, 201]
+\end{lstlisting}
+
+\section{Sorting in Place in Linear Time}
+\textbf{(1.5pts)} Suppose that we have an array of $n$ data records to sort and that the key of each record has the value 0 or 1. An algorithm for sorting such a set of records might possess some subset of the following three desirable characteristics:
+
+\begin{enumerate}
+  \item The algorithm runs in $O(n)$ time.
+  \item The algorithm is stable.
+  \item The algorithm sorts in place, using no more than a constant amount of storage space in addition to the original array.
+\end{enumerate}
+
+\begin{enumerate}[label=(\alph*)]
+  \item Give an algorithm that satisfies criteria 1 and 2 above.
+  \item Give an algorithm that satisfies criteria 1 and 3 above.
+  \item Give an algorithm that satisfies criteria 2 and 3 above.
+  \item Can any of your sorting algorithms from parts(a)–(c) be used to sort $n$ records with $b$-bit keys using radix sort in $O(bn)$ time? Explain how or why not.
+  \item Suppose that the $n$ records have keys in the range from 1 to $k$. Show how to modify counting sort so that the records can be sorted in place in $O(n + k)$ time. You may use $O(k)$ storage outside the input array. Is your algorithm stable? (Hint: How would you do it for $k = 3$?)
+
+\end{enumerate}
+
+\section{Alternative Quicksort Analysis} 
+\textbf{(1.5pts)} An alternative analysis of the running time of randomized quicksort focuses on the expected running time of each individual recursive call to QUICKSORT, rather than on the number of comparisons performed.
+
+\begin{enumerate}[label=(\alph*)]
+  \item Argue that, given an array of size $n$, the probability that any particular element is chosen as the pivot is $1/n$. Use this to define indicator random variables $X_i = I \{i\mbox{th smallest element is chosen as the pivot}\}$. What is $E[X_i]$?
+  \item Let $T(n)$ be a random variable denoting the running time of quicksort on an array of size $n$. Argue that
+  \begin{equation}
+    E[T(n)]=E\left[\sum_{q=1}^{n}X_q(T(q-1)+T(n-q)+\Theta(n))\right]  
+    \label{eq:1}
+  \end{equation}
+  
+  \item Show that equation~\ref{eq:1} simplifies to
+  \begin{equation}
+    E[T(n)] = \frac{2}{n}\sum_{q=0}^{n-1}E[T(q)] + \Theta(n)
+    \label{eq:2}
+  \end{equation}
+
+  \item Show that
+  \begin{equation}
+    \sum_{k=1}^{n-1} k \lg k \leq \frac{1}{2}n^2\lg n - \frac{1}{8}n^2
+    \label{eq:3}
+  \end{equation}
+  (Hint: Split the summation into two parts, one for $k=1,2, \ldots, \lceil n/2 \rceil - 1$ and \\ one for $k=\lceil n/2 \rceil~,\ldots,~n-1.)$
+
+  \item Using the bound from equation~\ref{eq:3}, show that the recurrence in equation~\ref{eq:2} has the solution $E[T(n)]=\Theta(n\lg n)$. (Hint: Show, by substitution, that $E[T(n)] \leq an \log n - bn$ for some positive constants $a$ and $b$.)
+\end{enumerate}
+
+
+
+\end{document}
