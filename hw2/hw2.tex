@@ -7,7 +7,7 @@
 \usepackage{url}
 \usepackage[linesnumbered,ruled,vlined]{algorithm2e}
 \usepackage{enumitem}
-
+\usepackage{amsmath}
 
 \definecolor{mygreen}{rgb}{0,0.6,0}
 
@@ -42,6 +42,7 @@
 
 Fundação Getulio Vargas\hfill\\
 Estruturas de Dados e Algoritmos\hfill\textbf{\assignment}\\
+Aluno: Marcelo Bianchi Barata Ribeiro\\
 Prof.\ Jorge Poco\hfill\textbf{Due:}: \duedate\\
 \smallskip\hrule\bigskip
 
@@ -77,8 +78,17 @@ int main() {
 }
 \end{lstlisting}
 
+\textbf{Resposta}:\\
+Ver arquivo rbt.cpp.
 
-
+Como referências, usei:
+\begin{itemize}
+	\item Livro "Introduction to Algorithms", capítulo 13 (CORMEN, Thomas et al).
+	\item Slide L3 do curso de Standford que está sendo utilizado pelo professor. 
+	\begin{itemize}
+		\item Link: http://web.stanford.edu/class/archive/cs/cs161/cs161.1178/
+	\end{itemize}
+\end{itemize}
 
 \section{Radix Sort}
 
@@ -99,6 +109,22 @@ print(A_sorted)
 # output: [3, 10, 100, 201]
 \end{lstlisting}
 
+\textbf{Resposta}:\\
+
+Ver arquivo: radix\_sort.ipynb.\\
+
+Como referências, usei:
+\begin{itemize}
+	\item Livro "Introduction to Algorithms", capítulo 8.4 (CORMEN, Thomas et al).
+	\item Slide L3 do curso de Standford que está sendo utilizado pelo professor. 
+	\begin{itemize}
+		\item Link: http://web.stanford.edu/class/archive/cs/cs161/cs161.1178/
+	\end{itemize}
+\end{itemize}
+  
+ 
+Além do exemplo de teste fiz mais alguns com números naturais. O radix sort faz  recursão em cada dígito do conjunto de elementos da lista e chama bucket sort, que por sua vez cria uma chave-valor e usa o dígito como chave, chamando em seguida um stable sort em cada bucket gerado. Escolhi o insert sort dado que o foco não está na escolha do stable sort por algum critério específico. Nesse caso, o insertion sort ocupa menos linhas, tornando o código mais conciso de modo a visualizar suas outras partes.
+
 \section{Sorting in Place in Linear Time}
 \textbf{(1.5pts)} Suppose that we have an array of $n$ data records to sort and that the key of each record has the value 0 or 1. An algorithm for sorting such a set of records might possess some subset of the following three desirable characteristics:
 
@@ -116,6 +142,21 @@ print(A_sorted)
   \item Suppose that the $n$ records have keys in the range from 1 to $k$. Show how to modify counting sort so that the records can be sorted in place in $O(n + k)$ time. You may use $O(k)$ storage outside the input array. Is your algorithm stable? (Hint: How would you do it for $k = 3$?)
 
 \end{enumerate}
+
+\textbf{Resposta}:\\
+
+a) Nesse caso, podemos aplicar counting sort, dado que sabemos o número distinto de valores. Counting sort tem complexidade O(n) e é um stable sort, tal como demonstrado no livro.\\
+
+b) Nesse caso específico, Quicksort pode ser aplicado uma única vez se escolhermos 0 como pivô, dado que isso vai separar a lista, deixando todos os 0s do lado esquerdo e todos os 1s do lado direito. Quicksort é sempre inplace. Sua complexidade em geral é O(nlogn), mas será O(n) neste caso. \\
+
+c) Insertion sort é in place e também é conhecido como um stable sort.
+\\
+
+d) Counting sort. 
+\\
+
+e)
+
 
 \section{Alternative Quicksort Analysis} 
 \textbf{(1.5pts)} An alternative analysis of the running time of randomized quicksort focuses on the expected running time of each individual recursive call to QUICKSORT, rather than on the number of comparisons performed.
@@ -144,6 +185,104 @@ print(A_sorted)
   \item Using the bound from equation~\ref{eq:3}, show that the recurrence in equation~\ref{eq:2} has the solution $E[T(n)]=\Theta(n\lg n)$. (Hint: Show, by substitution, that $E[T(n)] \leq an \log n - bn$ for some positive constants $a$ and $b$.)
 \end{enumerate}
 
+\textbf{Respostas}:\\
 
+ver livro , 118, 179\\
+
+\\
+a)\\
+Tal como explicado no livro "Introduction to Algorithms", capítulo 5 (CORMEN, Thomas et al), dado um espaço amostral S e um evento A, a Indicadora da variável aleatória I\{A\} associada ao evento A será definida por:
+
+\[
+ I\{A\}\ =
+\left\{
+\begin{array}{ll}
+1& \textrm{se A ocorrer}\\
+0& \textrm{se A não ocorrer}
+\end{array}
+\right.
+\]
+
+Neste caso, queremos encontrar o valor esperado do \textit{i-ésimo menor elemento a ser selecionado como pivô} ($A_{i}$). O espaço amostral é dado por S = \{$A_{1}, A_{2}, ..., A_{n}$\}, sendo a probabilidade de $A_{i} = \frac{1}{n}, \forall 1\leq i \leq  n$, pois as probabilidades de cada evento são todas iguais e, somadas, totalizam 1.
+Podemos definir uma variável aleatória Xi associada ao evento $A_{i}$. Essa variável conta o número de vezes que o pivô 'i' será selecionado ao fazer a seleção, que será 1 em caso afirmativo, ou 0 caso contrário. Escrevemos então:
+
+\[
+X_{i} =
+\left\{
+\begin{array}{ll}
+1& \textrm{se $A_{i}$ ocorrer}\\
+0& \textrm{se $A_{i}$ não ocorrer}
+\end{array}
+\right.
+\]
+
+O número esperado de vezes que $A_{i}$ será selecionado como pivô é simplesmente o valor esperado da variável indicadora Xi:	 \\
+\begin{align*}
+& E[X_{i}] = E[I\{A_{i}\}] \\
+& = 1\cdot Pr\{A_{i}\} + 0\cdot Pr\{A_{i}\}  \\
+& = 1\cdot\frac{1}{n} + 0\cdot\frac{n-1}{n} \\
+& = \frac{1}{n}\\
+\end{align*}
+Portanto, o número esperado de vezes que $A_{i}$ será selecionado como pivô é $\frac{1}{n}$ \\
+
+b)\\
+Primeiro, definindo T(n):\\
+Relembrando o algoritmo quicksort:\\
+QUICKSORT(A, p, r) \\
+1. if p $<$ r: \\
+2. ---- q = PARTITION(A, p, r) \\
+3. ---- QUICKSORT(A, p, q-1) \\
+4. ---- QUICKSORT(A, q+1, r) \\
+Sendo que a chamada inicial da função é: QUICKSORT(A,1,A.length).\\
+Não precisamos entrar em muitos detalhes sobre o PARTITION. Essencialmente, será definido um pivô "q" por meio do qual o array A será dividido entre os elementos menores do que q e os maiores do que q, formando duas sublistas onde se dará nova recursão. Tal tarefa de particionamento tem custo linear, $\Theta(n)$\\
+Portanto, a recursão de quicksort é $ T(n) = T(q-1)+T(n-q)+\Theta(n) $\\\\
+
+A partir daqui podemos We can apply linearity of expectation over all of the events $X_i$. Suppose we have a particular $X_i$ be true, then, we will have one of the sub arrays be length $i - 1$, and the other be $n - i$, and will of course still need linear time to run the partition procedure. This corresponds exactly to the summand in equation $\text{(7.5)}$.
+\\tt\\\\
+c)rever para ficar exatamente igual. entender linha 6 \\
+\begin{align*}
+&E[T(n)]=E\left[\sum_{q=1}^{n}X_q(T(q-1)+T(n-q)+\Theta(n))\right]   \\
+&= \sum_{q=1}^n  E[X_q(T(q-1)+T(n-q)+\Theta(n))]\\
+&= \sum_{q=1}^n \frac{(T(q-1)+T(n-q)+\Theta(n))}{n}\  \text{Usando o que foi demonstrado na letra 'a'} \\
+&= \Theta(n)+\frac{1}{n} \sum_{q=1}^n(T(q-1)+T(n-1)) \\
+&= \Theta(n)+\frac{1}{n} \left(\sum_{q=1}^n T(q-1)+\sum_{q=1}^nT(n-q) \right) \\
+&= \Theta(n)+\frac{1}{n} \left(\sum_{q=1}^n T(q-1)+\sum_{q=1}^nT(q-1) \right) \\
+&= \Theta(n)+\frac{1}{n} \sum_{q=1}^n 2\cdot T(q-1) \\
+&= \Theta(n)+\frac{2}{n} \sum_{q=1}^n T(q-1) \\
+&= \Theta(n)+\frac{2}{n} \sum_{q=0}^{n-1} T(q). \\
+\end{align*}
+
+d)
+
+e)
+
+Utilizando o método de substituição, estipulamos que $T(q) \le q \lg(q)-bn$ e assumimos por indução que a propriedade se mantém. Pela proposição "c", temos que:
+
+\begin{align*}
+\text E[T(n)]
+& = \frac{2}{n} \sum_{q=0}^{n-1} \text E[T(q)] + \Theta(n) \\
+& \le \frac{2}{n} \sum_{q=0}^{n-1}aq\lg q-bq + \Theta(n)\ \  \text{Aplicando substituição.}\\
+& = \frac{2}{n} \sum_{q=1}^{n-1}aq\lg q -bq + \Theta(n) \\
+& \le \frac{2}{n}(\frac{1}{2}an^2\lg n - \frac{a}{8}n^2 -\frac{bn^2}{2}) + \Theta(n)\  \text{Aplicando o resultado de "d".}\\
+& = an\lg n -\frac{an}{4} - \frac{2}{n}\frac{bn^2}{2} + \Theta(n) \\
+& = an\lg n - bn -\frac{an}{4} + \Theta(n) \\ 
+& \le an\lg n - bn + \Theta(n),\ \forall a,b > 0\\
+& = \Theta(n\lg n).
+\end{align*}
+
+%OLD
+%\begin{align*}
+%\text E[T(n)]
+%& = \frac{2}{n} \sum_{q=0}^{n-1} \text E[T(q)] + \Theta(n) \\
+%& \le \frac{2}{n} \sum_{q=0}^{n-1}aq\lg q-bn + \Theta(n)\ \  \text{Aplicando substituição.}\\
+%& = \frac{2}{n} \sum_{q=1}^{n-1}aq\lg q -bn + \Theta(n) \\
+%& \le \frac{2}{n}(\frac{1}{2}an^2\lg n - a\frac{1}{8}n^2 -(n-1)bn) + \Theta(n)\  \text{Aplicando o resultado de "d".}\\
+%& = an\lg n -a\frac{1}{4}n - (n-1)b + \Theta(n) \\
+%& = an\lg n - n(\frac{a}{4}+b) + b + \Theta(n) \text{REVER SE ESSE OU ABAIXO.} \\
+%& = an\lg n - bn - a\frac{n}{4} + b + \Theta(n) \\
+%& = an\lg n - bn - b(n+1) + \Theta(n)\ \  \text{Estipulando a > 4b.}\\
+%& \le an\lg n - bn + \Theta(n)\ \\\
+%& = \Theta(n\lg n).
+%\end{align*}
 
 \end{document}
