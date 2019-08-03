@@ -189,7 +189,7 @@ e)
 
 ver livro , 118, 179\\
 
-\\
+
 a)\\
 Tal como explicado no livro "Introduction to Algorithms", capítulo 5 (CORMEN, Thomas et al), dado um espaço amostral S e um evento A, a Indicadora da variável aleatória I\{A\} associada ao evento A será definida por:
 
@@ -234,12 +234,19 @@ QUICKSORT(A, p, r) \\
 3. ---- QUICKSORT(A, p, q-1) \\
 4. ---- QUICKSORT(A, q+1, r) \\
 Sendo que a chamada inicial da função é: QUICKSORT(A,1,A.length).\\
-Não precisamos entrar em muitos detalhes sobre o PARTITION. Essencialmente, será definido um pivô "q" por meio do qual o array A será dividido entre os elementos menores do que q e os maiores do que q, formando duas sublistas onde se dará nova recursão. Tal tarefa de particionamento tem custo linear, $\Theta(n)$\\
-Portanto, a recursão de quicksort é $ T(n) = T(q-1)+T(n-q)+\Theta(n) $\\\\
+Não precisamos entrar em muitos detalhes sobre o PARTITION. Essencialmente, será definido um pivô "q" por meio do qual o array A será dividido entre os elementos menores do que 'q' (elementos q-1) e os maiores do que 'q' (elementos n-q), formando duas sublistas onde se dará nova recursão. Tal tarefa de particionamento tem custo linear, $\Theta(n)$\\
+Portanto, a recursão de quicksort é:\\
+\begin{equation}
+ T(n) = T(q-1)+T(n-q)+\Theta(n)
+\end{equation}
 
-A partir daqui podemos We can apply linearity of expectation over all of the events $X_i$. Suppose we have a particular $X_i$ be true, then, we will have one of the sub arrays be length $i - 1$, and the other be $n - i$, and will of course still need linear time to run the partition procedure. This corresponds exactly to the summand in equation $\text{(7.5)}$.
-\\tt\\\\
-c)rever para ficar exatamente igual. entender linha 6 \\
+A partir daqui, sabemos uma das principais propriedades da expectância, a de linearidade. Basta aplicar sobre cada um dos eventos $X_{i}$ para chegarmos ao resultado:
+\begin{equation}
+E[T(n)]=E\left[\sum_{q=1}^{n}X_q(T(q-1)+T(n-q)+\Theta(n))\right]  
+\end{equation}
+
+
+c) rever. rever theta. rever linha 6 \\
 \begin{align*}
 &E[T(n)]=E\left[\sum_{q=1}^{n}X_q(T(q-1)+T(n-q)+\Theta(n))\right]   \\
 &= \sum_{q=1}^n  E[X_q(T(q-1)+T(n-q)+\Theta(n))]\\
