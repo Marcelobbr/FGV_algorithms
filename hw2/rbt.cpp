@@ -2,6 +2,8 @@
 #include <iostream>
 #include <iomanip>
 #include <initializer_list>
+#include <vector>
+#include <string>
 using namespace std; 
 
 //clear if unused: *pNext, initialization funcs
@@ -14,10 +16,9 @@ struct Node {
     bool color; 
     Node *pChild[2], *pParent, *pNext; // pNext NOT WORKING
 
-    Node(int data) {
-    this->data = data; 
-    pChild[0] = pChild[1] = pParent = NULL; 
-    } 
+    Node(int x):data(x) {
+        pChild[0] = pChild[1] = pParent = nullptr;  // removed 'this' selector
+    }
 }; 
 
 class RBTree { 
@@ -26,18 +27,10 @@ protected:
     void left_rotate(Node *&, Node *&); 
     void right_rotate(Node *&, Node *&); 
     void RB_insert_fixup(Node *&, Node *&); 
-public: 
-    //funcs to work with initialization list of ints, NOT WORKING
-    RBTree(initializer_list<int> values);
-    void push_back(int x);
-    template<typename ...Ts>
-    RBTree(Ts... ts);
-    //funcs end
-    
-    RBTree() { pRoot = NULL; } 
+public:     
+    RBTree() { pRoot = nullptr; } 
     void insert(const int &n); 
-    //void insert(const int &x) { //void RBTree::insert(const int &data) { 
-     //   Node **p;        if (!find(x, p)) {*p = new Node(x);        }    }
+
     
     bool find(int x) {
         Node **p;
@@ -54,7 +47,6 @@ public:
         print(pRoot);
         cout << endl;
     }
-   
 
 private:     
     bool find(int x, Node **&p) {
@@ -94,33 +86,18 @@ private:
 }; 
 /* END OF HEADER */
 
-// constructors with push_back and initialization list, NOT WORKING
-void RBTree::push_back(int x) {
-    Node **pNode;
-    if ((find(x, pNode))) return;
-    Node *newNode = new Node(x);
-    newNode->pNext = *pNode;
-    *pNode = newNode;
-}
-RBTree::RBTree(initializer_list<int> values):pRoot(NULL) {
-    for (auto val: values) {
-        this->push_back(val);
-    }
-}
-// test constructors end
-
 /* ROTATION FUNCTIONS*/
 void RBTree::left_rotate(Node *&pRoot, Node *&X) { 
     Node *Y = X->pChild[1]; 
     
     //nova relacao de y.left (beta no livro)
     X->pChild[1] = Y->pChild[0]; 
-    if (Y->pChild[0] != NULL) // mudei para = livro
+    if (Y->pChild[0] != nullptr) // mudei para = livro
         X->pChild[1]->pParent = X; // livro parece errado neste caso, pois Y->left vai ser o X. Ver penultima linha desta funcao
     
     // nova relacao de X.pParent
     Y->pParent = X->pParent; 
-    if (X->pParent == NULL) // se X era root, Y será novo root
+    if (X->pParent == nullptr) // se X era root, Y será novo root
         pRoot = Y; 
     else if (X == X->pParent->pChild[0]) 
         X->pParent->pChild[0] = Y; 
@@ -137,12 +114,12 @@ void RBTree::right_rotate(Node *&pRoot, Node *&X) {
     
     //nova relacao de y.right (beta no livro)
     X->pChild[0] = Y->pChild[1];
-    if (Y->pChild[1] != NULL) 
+    if (Y->pChild[1] != nullptr) 
         X->pChild[0]->pParent = X; 
         
     // nova relacao de X.pParent
     Y->pParent = X->pParent; 
-    if (X->pParent == NULL) 
+    if (X->pParent == nullptr) 
         pRoot = Y; 
     else if (X == X->pParent->pChild[0])
         X->pParent->pChild[0] = Y; 
@@ -155,11 +132,10 @@ void RBTree::right_rotate(Node *&pRoot, Node *&X) {
 } 
 
 /* INSERTION FUNCTIONS*/
-/* A utility function to insert a new node with given key in BST */
 //falta o caso quando X já existe
 Node* BST_insert(Node* T, Node *X) { 
     /* X será a nova raiz, se tree estiver vazia */
-    if (T == NULL) return X; 
+    if (T == nullptr) return X; 
     
     /* desce a árvore até encontrar um ponto para encaixar */
     else {
@@ -176,10 +152,10 @@ Node* BST_insert(Node* T, Node *X) {
     return T; 
 } 
 
-// This function fixes violations caused by BST insertion 
 void RBTree::RB_insert_fixup(Node *&pRoot, Node *&Z) { 
-    Node *Z_pParent = NULL; 
-    Node *Z_pGrParent = NULL; 
+    Node *Z_pParent = nullptr; 
+    Node *Z_pGrParent = nullptr; 
+    Z->color = RED;
 
     while ((Z != pRoot) && (Z->color != BLACK) && (Z->pParent->color == RED)) {
         Z_pParent = Z->pParent; 
@@ -190,7 +166,7 @@ void RBTree::RB_insert_fixup(Node *&pRoot, Node *&Z) {
             Node *Y = Z_pGrParent->pChild[1]; 
 
             /* pParent and uncle are red. Recoloring both and Z.p.p */
-            if (Y != NULL && Y->color == RED) { 
+            if (Y != nullptr && Y->color == RED) { 
                 Z_pParent->color = BLACK; 
                 Y->color = BLACK; 
                 Z_pGrParent->color = RED; 
@@ -215,7 +191,7 @@ void RBTree::RB_insert_fixup(Node *&pRoot, Node *&Z) {
             Node *Y = Z_pGrParent->pChild[0]; 
 
             /* pParent and uncle are red. Recoloring both and Z.p.p */
-            if ((Y != NULL) && (Y->color == RED)) { 
+            if ((Y != nullptr) && (Y->color == RED)) { 
                 Z_pParent->color = BLACK; 
                 Y->color = BLACK; 
                 Z_pGrParent->color = RED; 
@@ -249,27 +225,14 @@ void RBTree::insert(const int &data) {
     pRoot = BST_insert(pRoot, Z); 
 
     // fix Red Black Tree violations 
-    Z->color = RED;
     RB_insert_fixup(pRoot, Z); 
 } 
 
-
 int main() { 
-    RBTree tree; 
-    
-    //RBTree tree(41 , 38 , 31 , 12 , 19 , 8);
-    tree.insert(7); 
-    tree.insert(6); 
-    tree.insert(5); 
-    cout << "\n\nprint Partial Tree\n"; 
-    tree.print(); 
-    tree.insert(4); 
-    tree.insert(3); 
-    tree.insert(2); 
-    tree.insert(1); 
+    //RBTree rbt(41 , 38 , 31 , 12 , 19 , 8);
+    RBTree rbt; int sets[] = {41 , 38 , 31 , 12 , 19 , 8}; for (int h =0; h<=5; h++) {rbt.insert(sets[h]);}    
     
     cout << "\n\nprint Created Tree\n"; 
-    tree.print(); 
-
+    rbt.print(); 
     return 0; 
 } 
