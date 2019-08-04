@@ -5,6 +5,7 @@
 using namespace std; 
 
 //clear if unused: *pNext, initialization funcs
+// swap -> verbose version
 
 enum Color {RED, BLACK}; 
 
@@ -35,12 +36,8 @@ public:
     
     RBTree() { pRoot = NULL; } 
     void insert(const int &n); 
-    //void insert(int x) {
-    //    Node **p;
-    //    if (!find(x, p)) {
-    //        *p = new Node(x);
-    //    }
-    //}
+    //void insert(const int &x) { //void RBTree::insert(const int &data) { 
+     //   Node **p;        if (!find(x, p)) {*p = new Node(x);        }    }
     
     bool find(int x) {
         Node **p;
@@ -58,8 +55,7 @@ public:
         cout << endl;
     }
    
-    void inorder(); 
-    void levelOrder(); 
+
 private:     
     bool find(int x, Node **&p) {
         p = &pRoot;
@@ -245,64 +241,32 @@ void RBTree::RB_insert_fixup(Node *&pRoot, Node *&Z) {
 
 // Function to insert a new node with given data 
 void RBTree::insert(const int &data) { 
+    cout << data << " "<< " "<< &data << endl;
     Node *Z = new Node(data); 
+    cout << "Z: " << Z << " " << " " << Z << endl;
 
     // Do a normal BST insert 
     pRoot = BST_insert(pRoot, Z); 
 
     // fix Red Black Tree violations 
+    Z->color = RED;
     RB_insert_fixup(pRoot, Z); 
 } 
-
-/* TRASH */
-// A recursive function to do level order traversal 
-void inorderHelper(Node *pRoot) { 
-    if (pRoot == NULL) 
-        return; 
-    inorderHelper(pRoot->pChild[0]); 
-    cout << pRoot->data << " "; 
-    inorderHelper(pRoot->pChild[1]); 
-} 
-
-// Utility function to do level order traversal 
-void levelOrderHelper(Node *pRoot) { 
-    if (pRoot == NULL) 
-        return; 
-    std::queue<Node *> q; 
-    q.push(pRoot); 
-    while (!q.empty()) 	{ 
-        Node *temp = q.front(); 
-        cout << temp->data << " "; 
-        q.pop(); 
-        if (temp->pChild[0] != NULL) 
-            q.push(temp->pChild[0]); 
-        if (temp->pChild[1] != NULL) 
-            q.push(temp->pChild[1]); 
-    }
-} 
-
-// Function to do inorder and level order traversals 
-void RBTree::inorder() { inorderHelper(pRoot);} 
-void RBTree::levelOrder() { levelOrderHelper(pRoot); } 
 
 
 int main() { 
     RBTree tree; 
     
     //RBTree tree(41 , 38 , 31 , 12 , 19 , 8);
-    tree.insert(4); 
+    tree.insert(7); 
     tree.insert(6); 
     tree.insert(5); 
-    tree.insert(7); 
-    tree.insert(1); 
+    cout << "\n\nprint Partial Tree\n"; 
+    tree.print(); 
+    tree.insert(4); 
     tree.insert(3); 
     tree.insert(2); 
-
-    cout << "Inoder Traversal of Created Tree\n"; 
-    tree.inorder(); 
-
-    cout << "\n\nLevel Order Traversal of Created Tree\n"; 
-    tree.levelOrder(); 
+    tree.insert(1); 
     
     cout << "\n\nprint Created Tree\n"; 
     tree.print(); 
