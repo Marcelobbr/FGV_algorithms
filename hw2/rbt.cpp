@@ -13,9 +13,9 @@ enum Color {RED, BLACK};
 struct Node {
     int data;
     bool color;
-    Node *pChild[2], *pParent, *pSibling, *pNext; // pNext NOT WORKING
+    Node *pChild[2], *pParent, *pSibling, *pNext; // pNext NAO FUNCIONA, IRRELEVANTE?
     Node(int x):data(x) {
-        pChild[0] = pChild[1] = pParent = pSibling = pNext = nullptr;
+        pChild[0] = pChild[1] = pParent = pSibling = pNext = nullptr; // pNext NAO FUNCIONA, IRRELEVANTE?
     }
 };
 
@@ -70,9 +70,11 @@ public:
 private:
     void left_rotate(Node *&, Node *&);
     void right_rotate(Node *&, Node *&);
+    Node* RB_insert(Node *, Node *);
     void RB_insert_fixup(Node *&, Node *&);
     void RB_delete(Node *);
     void RB_delete_fixup(Node *);
+    
     bool find(int x, Node **&p) {
         p = &pRoot;
         while(*p) {
@@ -189,32 +191,32 @@ void RBTree::right_rotate(Node *&pRoot, Node *&X) {
 
 /* INSERTION FUNCTIONS*/
 //falta o caso quando X já existe
-Node* BST_insert(Node* T, Node *X) {
+Node* RBTree::RB_insert(Node* subTree, Node *X) {
     /* X será a nova raiz, se tree estiver vazia */
-    if (T == nullptr) return X;
+    if (subTree == nullptr) return X;
 
     /* desce a árvore até encontrar um ponto para encaixar */
     else {
-        if (X->data < T->data) 	{
-            T->pChild[0] = BST_insert(T->pChild[0], X);
-            T->pChild[0]->pParent = T;
+        if (X->data < subTree->data) 	{
+            subTree->pChild[0] = RB_insert(subTree->pChild[0], X);
+            subTree->pChild[0]->pParent = subTree;
         }
-        else if (X->data > T->data) {
-            T->pChild[1] = BST_insert(T->pChild[1], X);
-            T->pChild[1]->pParent = T;
+        else if (X->data > subTree->data) {
+            subTree->pChild[1] = RB_insert(subTree->pChild[1], X);
+            subTree->pChild[1]->pParent = subTree;
         }
     }
     /* return the (unchanged) node pointer */
-    return T;
+    return subTree;
 }
 
 // This function fixes violations caused by BST insertion
-void RBTree::RB_insert_fixup(Node *&pRoot, Node *&Z) {
+void RBTree::RB_insert_fixup(Node *&subTree, Node *&Z) {
     Node *Z_pParent = nullptr;
     Node *Z_pGrParent = nullptr;
     Z->color = RED;
 
-    while ((Z != pRoot) && (Z->color != BLACK) && (Z->pParent->color == RED)) {
+    while ((Z != subTree) && (Z->color != BLACK) && (Z->pParent->color == RED)) {
         Z_pParent = Z->pParent;
         Z_pGrParent = Z->pParent->pParent;
 
@@ -232,12 +234,12 @@ void RBTree::RB_insert_fixup(Node *&pRoot, Node *&Z) {
             else{
                 /* Z is at right: left-rotation of Z.p, then right-rotation of Z.p.p */
                 if (Z == Z_pParent->pChild[1]) {
-                    left_rotate(pRoot, Z_pParent);
+                    left_rotate(subTree, Z_pParent);
                     Z = Z_pParent; // this is necessary for the other rotation to work correctly. Otherwise Z.p.p would be actually the grand_grand_pParent.
                     Z_pParent = Z->pParent; // redefine Z_p=Z.p, after rotation.
                 }
                 /* Z is at left: only right-rotation of Z.p.p */
-                right_rotate(pRoot, Z_pGrParent); // apos rotacao, vai colocar pParent acima de grandpParent
+                right_rotate(subTree, Z_pGrParent); // apos rotacao, vai colocar pParent acima de grandpParent
                 swap(Z_pParent->color, Z_pGrParent->color);
                 Z = Z_pParent;
             }
@@ -257,29 +259,28 @@ void RBTree::RB_insert_fixup(Node *&pRoot, Node *&Z) {
             else{
                 /* Z is at left: right-rotation of Z.p, then left-rotation of Z.p.p */
                 if (Z == Z_pParent->pChild[0]) {
-                    right_rotate(pRoot, Z_pParent);
+                    right_rotate(subTree, Z_pParent);
                     Z = Z_pParent; // this is necessary for the other rotation to work correctly. Otherwise Z.p.p would be actually the grand_grand_pParent.
                     Z_pParent = Z->pParent; // redefine Z_p=Z.p, after rotation.
                 }
                 /* Z is at right: only left-rotation of Z.p.p */
-                left_rotate(pRoot, Z_pGrParent); // apos rotacao, vai colocar pParent acima de grandpParent
+                left_rotate(subTree, Z_pGrParent); // apos rotacao, vai colocar pParent acima de grandpParent
                 swap(Z_pParent->color, Z_pGrParent->color);
                 Z = Z_pParent;
             }
         }
     }
 
-    pRoot->color = BLACK; // needs to assure that root is black
+    subTree->color = BLACK; // needs to assure that root is black
 }
 
-// Function to insert a new node with given data
 void RBTree::insert_and_recolor(const int &data) {
     cout << data << " "<< " "<< &data << endl;
     Node *Z = new Node(data);
     cout << "Z: " << Z << " " << " " << Z << endl;
 
     // Do a normal BST insert
-    pRoot = BST_insert(pRoot, Z);
+    pRoot = RB_insert(pRoot, Z);
 
     // fix Red Black Tree violations
     //Z->color = RED;
@@ -288,84 +289,84 @@ void RBTree::insert_and_recolor(const int &data) {
 
 /* DELETION FUNCTIONS*/
 // deletes the given node
-void RBTree::RB_delete(Node *v) {
+void RBTree::RB_delete(Node *Z) {
     Node *pSibling;
-    Node *pParent = v->pParent;
-    Node *u = BSTreplace(v);
+    Node *pParent = Z->pParent;
+    Node *X = BSTreplace(Z);
 
-    // True when u and v are both black
-    bool doubly_black = ((v->color == BLACK) && (u == nullptr || u->color == BLACK));
+    // True when X and Z are both black
+    bool doubly_black = ((Z->color == BLACK) && (X == nullptr || X->color == BLACK));
 
-    if (u == nullptr) {
-        // u is NULL therefore v is leaf
-        if (v == pRoot) {
+    if (X == nullptr) {
+        // X is NULL therefore Z is leaf
+        if (Z == pRoot) {
             pRoot = nullptr;
         }
         else {
             if (doubly_black) {
-                // u and v both black
-                // v is leaf, fix double black at v
-                RB_delete_fixup(v);
+                // X and Z both black
+                // Z is leaf, fix double black at Z
+                RB_delete_fixup(Z);
             }
             else {
-                // u or v is red
-                pSibling = get_sibling(v);
-                if (v->pSibling != nullptr)
+                // X or Z is red
+                pSibling = get_sibling(Z);
+                if (Z->pSibling != nullptr)
                     // sibling is not null, make it red"
-                    v->pSibling->color = RED;
+                    Z->pSibling->color = RED;
             }
 
-            // delete v from the tree
-            if (v == v->pParent->pChild[0]) {
+            // delete Z from the tree
+            if (Z == Z->pParent->pChild[0]) {
                 pParent->pChild[0] = nullptr;
             }
             else {
                 pParent->pChild[1] = nullptr;
             }
         }
-        delete v; return;
+        delete Z; return;
     }
 
-    if (v->pChild[0] == nullptr || v->pChild[1] == nullptr) {
-        // v has 1 child
-        if (v == pRoot) {
-            // v is root, assign the value of u to v, and delete u
-            v->data = u->data;
-            v->pChild[0] = v->pChild[1] = nullptr;
-            delete u;
+    if (Z->pChild[0] == nullptr || Z->pChild[1] == nullptr) {
+        // Z has 1 child
+        if (Z == pRoot) {
+            // Z is root, assign the value of X to Z, and delete X
+            Z->data = X->data;
+            Z->pChild[0] = Z->pChild[1] = nullptr;
+            delete X;
         }
         else {
-            // Detach v from tree and move u up
-            if (v == v->pParent->pChild[0]) {
-                pParent->pChild[0] = u;
+            // Detach Z from tree and move X up
+            if (Z == Z->pParent->pChild[0]) {
+                pParent->pChild[0] = X;
             }
             else {
-                pParent->pChild[1] = u;
+                pParent->pChild[1] = X;
             }
-            delete v;
-            u->pParent = pParent;
+            delete Z;
+            X->pParent = pParent;
             if (doubly_black) {
-                // u and v both black, fix double black at u
-                RB_delete_fixup(u);
+                // X and Z both black, fix double black at X
+                RB_delete_fixup(X);
             }
             else {
-                // u or v red, color u black
-                u->color = BLACK;
+                // X or Z red, color X black
+                X->color = BLACK;
             }
         }
         return;
     }
 
-    // v has 2 children, swap values with successor and recurse
-    swap(u->data, v->data);
-    RB_delete(u);
+    // Z has 2 children, swap values with successor and recurse
+    swap(X->data, Z->data);
+    RB_delete(X);
 }
 
-void RBTree::RB_delete_fixup(Node *x) {
-    if (x == pRoot) return;
+void RBTree::RB_delete_fixup(Node *X) {
+    if (X == pRoot) return;
 
-    Node *pParent = x->pParent;
-    Node *pSibling = get_sibling(x);
+    Node *pParent = X->pParent;
+    Node *pSibling = get_sibling(X);
 
     if (pSibling == nullptr) {
         // No sibiling, double black pushed up
@@ -384,7 +385,7 @@ void RBTree::RB_delete_fixup(Node *x) {
                 // right case
                 left_rotate(pRoot, pParent);
             }
-            RB_delete_fixup(x);
+            RB_delete_fixup(X);
         }
     else {
         // Sibling black
