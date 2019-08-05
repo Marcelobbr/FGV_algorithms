@@ -44,8 +44,8 @@ public:
         if (!find(x, p)) {
             *p = new Node(x);
         }
-        RB_insert_fixup(pRoot, *p);
-        //RB_insert(**p);
+        //RB_insert_fixup(pRoot, *p);
+        //RB_insert(pRoot, *p);
     }
     void remove(int x) {
         Node **p;
@@ -74,6 +74,10 @@ public:
         return temp;
     }
 private:
+    //void process() {} // end recursion
+    //template <typename... Ts>
+    //void process(int t, Ts... ts);
+    
     void left_rotate(Node *&, Node *&);
     void right_rotate(Node *&, Node *&);
     Node* RB_insert(Node *, Node *);
@@ -447,16 +451,19 @@ void RBTree::RB_remove(int X) {
     RB_delete(v);
 }
 
-// constructors with initialization list, NOT WORKING
+//template <typename... Ts>
+//void RBTree::process(int t, Ts... ts) {
+//    RB_insert(t);
+//    this->process(ts...);
+//}
+
 RBTree::RBTree(initializer_list<int> values):pRoot(nullptr) {
     for (auto val: values) {
         this->RB_insert(val);
     }  }
-// test constructors end
 
 int main() {
-    //RBTree rbt(41 , 38 , 31 , 12 , 19 , 8);
-    RBTree rbt; int sets[] = {41 , 38 , 31 , 12 , 19 , 8}; for (int h =0; h<=5; h++) {rbt.RB_insert(sets[h]);}
+    RBTree rbt({41 , 38 , 31 , 12 , 19 , 8});
 
     cout << "\n\narvore gerada\n";
     rbt.print();
