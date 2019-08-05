@@ -24,15 +24,15 @@ protected:
     Node *pRoot;
 public:
     //funcs to work with initialization list of ints, NOT WORKING
-    //RBTree(initializer_list<int> values);
-    //void push_back(int x);
-    //template<typename ...Ts>
-    //RBTree(Ts... ts);
+    RBTree(initializer_list<int> values);
+    void push_back(int x);
+    template<typename ...Ts>
+    RBTree(Ts... ts);
     //funcs end
 
     RBTree() { pRoot = nullptr; }
-    void remove_and_recolor(int);
-    void insert_and_recolor(const int &n);
+    void RB_remove(int);
+    void RB_insert(int &);
     //void insert(const int &x) { //void RBTree::insert(const int &data) {
      //   Node **p;        if (!find(x, p)) {*p = new Node(x);        }    }
 
@@ -40,7 +40,14 @@ public:
         Node **p;
         return find(x, p);
     }
-
+    
+    void insert(int x) {
+        Node **p;
+        if (!find(x, p)) {
+            *p = new Node(x);
+        }
+        RB_insert(x);
+    }
     void remove(int x) {
         Node **p;
         if(find(x, p))
@@ -52,14 +59,14 @@ public:
         cout << endl;
     }
     //estou usando esse search em vez do find acima para deletar
-    Node *search(int x) {
+    Node *search(int X) {
         Node *temp = pRoot;
         while (temp != nullptr) {
-            if (x < temp->data) {
+            if (X < temp->data) {
                 if (temp->pChild[0] == nullptr) break;
                 else temp = temp->pChild[0];
             }
-            else if (x == temp->data) break;
+            else if (X == temp->data) break;
             else {
                 if (temp->pChild[1] == nullptr) break;
                 else temp = temp->pChild[1];
@@ -274,7 +281,7 @@ void RBTree::RB_insert_fixup(Node *&subTree, Node *&Z) {
     subTree->color = BLACK; // needs to assure that root is black
 }
 
-void RBTree::insert_and_recolor(const int &data) {
+void RBTree::RB_insert(int &data) {
     cout << data << " "<< " "<< &data << endl;
     Node *Z = new Node(data);
     cout << "Z: " << Z << " " << " " << Z << endl;
@@ -433,7 +440,7 @@ void RBTree::RB_delete_fixup(Node *X) {
     }
 }
 
-void RBTree::remove_and_recolor(int X) {
+void RBTree::RB_remove(int X) {
     if (pRoot == nullptr) return;
     Node *v = search(X);
     //Node *u;
@@ -442,28 +449,20 @@ void RBTree::remove_and_recolor(int X) {
 }
 
 // constructors with push_back and initialization list, NOT WORKING
-//void RBTree::push_back(int x) {
-//    Node **pNode;
-//    if ((find(x, pNode))) return;
-//    Node *newNode = new Node(x);
-//    newNode->pNext = *pNode;
-//    *pNode = newNode;
-//}
-//RBTree::RBTree(initializer_list<int> values):pRoot(nullptr) {
-//    for (auto val: values) {
-//        this->push_back(val);
-//    }
-//}
+RBTree::RBTree(initializer_list<int> values):pRoot(nullptr) {
+    for (auto val: values) {
+        this->RB_insert(val);
+    }  }
 // test constructors end
 
 int main() {
     //RBTree rbt(41 , 38 , 31 , 12 , 19 , 8);
-    RBTree rbt; int sets[] = {41 , 38 , 31 , 12 , 19 , 8}; for (int h =0; h<=5; h++) {rbt.insert_and_recolor(sets[h]);}
+    RBTree rbt; int sets[] = {41 , 38 , 31 , 12 , 19 , 8}; for (int h =0; h<=5; h++) {rbt.RB_insert(sets[h]);}
 
     cout << "\n\narvore gerada\n";
     rbt.print();
 
-    rbt.remove_and_recolor(19);
+    rbt.RB_remove(19);
     //rbt.remove(19);
     cout << "\n\narvore apos delecao\n";
     rbt.print();
