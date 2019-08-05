@@ -33,8 +33,6 @@ public:
     RBTree() { pRoot = nullptr; }
     void RB_remove(int);
     void RB_insert(int &);
-    //void insert(const int &x) { //void RBTree::insert(const int &data) {
-     //   Node **p;        if (!find(x, p)) {*p = new Node(x);        }    }
 
     bool find(int x) {
         Node **p;
@@ -46,7 +44,8 @@ public:
         if (!find(x, p)) {
             *p = new Node(x);
         }
-        RB_insert(x);
+        RB_insert_fixup(pRoot, *p);
+        //RB_insert(**p);
     }
     void remove(int x) {
         Node **p;
@@ -448,7 +447,7 @@ void RBTree::RB_remove(int X) {
     RB_delete(v);
 }
 
-// constructors with push_back and initialization list, NOT WORKING
+// constructors with initialization list, NOT WORKING
 RBTree::RBTree(initializer_list<int> values):pRoot(nullptr) {
     for (auto val: values) {
         this->RB_insert(val);
