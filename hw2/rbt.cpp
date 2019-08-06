@@ -6,7 +6,7 @@
 #include <string>
 using namespace std;
 
-//clear if unused: *pNext, initialization funcs
+//clear if unused: *pNext
 
 enum Color {RED, BLACK};
 
@@ -23,28 +23,28 @@ class RBTree {
 protected:
     Node *pRoot;
 public:
-    //funcs to work with initialization list of ints, NOT WORKING
+    //funcs to work with initialization list of ints
     RBTree(initializer_list<int> values);
     void push_back(int x);
     template<typename ...Ts>
     RBTree(Ts... ts);
-    //funcs end
 
     RBTree() { pRoot = nullptr; }
     void RB_remove(int);
     void RB_insert(int &);
 
-    bool find(int x) {
-        Node **p;
-        return find(x, p);
-    }
+    //bool find(int x) {
+    //    Node **p;
+    //    return find(x, p);
+    //}
     
     void insert(int x) {
         Node **p;
         if (!find(x, p)) {
             *p = new Node(x);
         }
-        //RB_insert_fixup(pRoot, *p);
+        cout << "*p " << *p << " " << &x << " " << x << endl; //<<
+        RB_insert_fixup(*&pRoot, **&p);
         //RB_insert(pRoot, *p);
     }
     void remove(int x) {
@@ -74,9 +74,9 @@ public:
         return temp;
     }
 private:
-    //void process() {} // end recursion
-    //template <typename... Ts>
-    //void process(int t, Ts... ts);
+    void process() {} // irrelevant
+    template <typename... Ts> // irrelevant
+    void process(int t, Ts... ts); // irrelevant
     
     void left_rotate(Node *&, Node *&);
     void right_rotate(Node *&, Node *&);
@@ -87,6 +87,7 @@ private:
     
     bool find(int x, Node **&p) {
         p = &pRoot;
+        cout << "root,**p&: " << &pRoot << " "<< pRoot << " "<< p << " "<< *p  << endl; //**p
         while(*p) {
             if ((*p)->data==x) return true;
             p = &((*p)->pChild[(*p)->data < x]);
@@ -127,7 +128,7 @@ private:
         return X->pParent->pChild[0];
     }
 
-    Node *tree_successor(Node *X) {
+    Node *successor(Node *X) {
         Node *temp = X;
         while (temp->pChild[0] != nullptr)
             temp = temp->pChild[0];
@@ -139,17 +140,9 @@ private:
         //Node **succesor = &(x->pChild[1]); // included
         //find_min(succesor);                 // included
         //x->data = (*succesor)->data;       // included
-
-        if (x->pChild[0] != nullptr && x->pChild[1] != nullptr)
-        return tree_successor(x->pChild[1]);
-
-        // when leaf
-        if (x->pChild[0] == nullptr && x->pChild[1] == nullptr)
-        return nullptr;
-
-        // when single child
-        if (x->pChild[0] != nullptr) return x->pChild[0];
-        else return x->pChild[1];
+        if (x->pChild[0] == nullptr) return x->pChild[1];
+        else if (x->pChild[1] == nullptr) return x->pChild[0];
+        else return successor(x->pChild[1]);
     }
 };
 /* END OF HEADER */
@@ -225,7 +218,7 @@ void RBTree::RB_insert_fixup(Node *&subTree, Node *&Z) {
     Node *Z_pParent = nullptr;
     Node *Z_pGrParent = nullptr;
     Z->color = RED;
-
+    //Z->pParent->color == BLACK // temp, insert bugged
     while ((Z != subTree) && (Z->color != BLACK) && (Z->pParent->color == RED)) {
         Z_pParent = Z->pParent;
         Z_pGrParent = Z->pParent->pParent;
@@ -302,7 +295,7 @@ void RBTree::RB_insert(int &data) {
 void RBTree::RB_delete(Node *Z) {
     Node *pSibling;
     Node *pParent = Z->pParent;
-    Node *X = BSTreplace(Z);
+    Node *X = BSTreplace(Z); // X is successor of Z, as in the book
 
     // True when X and Z are both black
     bool doubly_black = ((Z->color == BLACK) && (X == nullptr || X->color == BLACK));
@@ -446,16 +439,12 @@ void RBTree::RB_delete_fixup(Node *X) {
 void RBTree::RB_remove(int X) {
     if (pRoot == nullptr) return;
     Node *v = search(X);
-    //Node *u;
+    Node *u;
     if (v->data != X) return;
     RB_delete(v);
 }
 
-//template <typename... Ts>
-//void RBTree::process(int t, Ts... ts) {
-//    RB_insert(t);
-//    this->process(ts...);
-//}
+//template <typename... Ts>//void RBTree::process(int t, Ts... ts) {//    RB_insert(t);//    this->process(ts...);//}
 
 RBTree::RBTree(initializer_list<int> values):pRoot(nullptr) {
     for (auto val: values) {
@@ -463,13 +452,12 @@ RBTree::RBTree(initializer_list<int> values):pRoot(nullptr) {
     }  }
 
 int main() {
-    RBTree rbt({41 , 38 , 31 , 12 , 19 , 8});
+    RBTree rbt({41, 38, 31, 12, 19, 8});
 
     cout << "\n\narvore gerada\n";
     rbt.print();
 
     rbt.RB_remove(19);
-    //rbt.remove(19);
     cout << "\n\narvore apos delecao\n";
     rbt.print();
     return 0;
