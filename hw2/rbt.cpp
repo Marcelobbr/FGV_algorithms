@@ -2,36 +2,36 @@
 #include <iostream>
 #include <iomanip>
 #include <initializer_list>
-#include <vector>
-#include <string>
+
 using namespace std;
 
-//clear if unused: *pNext
-
-enum Color {RED, BLACK};
+/* 
+ * AS REFERENCE, I AM USING:
+ * BOOK: "Introduction to Algorithms", cap 13 (CORMEN, Thomas et al), third edition.
+ * Slide L3 from course at Standford which is being used by the teacher.
+ * * Link: http://web.stanford.edu/class/archive/cs/cs161/cs161.1178/
+ * Also I had to watch videos (about C++ and red-black trees) and read examples of C++ across many websites.
+ * * I tried to make RBT to inherit from BST or use it as a friend, but its not working. So I had to change BST directly.
+ */
+ 
+enum COLOR {cREd, cBlack};
 
 struct Node {
     int data;
-    bool color;
-    Node *pChild[2], *pParent, *pSibling, *pNext; // pNext NAO FUNCIONA, IRRELEVANTE?
+    bool pColor;
+    Node *pChild[2], *pParent, *pSibling; 
     Node(int x):data(x) {
-        pChild[0] = pChild[1] = pParent = pSibling = pNext = nullptr; // pNext NAO FUNCIONA, IRRELEVANTE?
+        pChild[0] = pChild[1] = pParent = pSibling  = nullptr;
     }
 };
 
 class BST {
+    friend class RBT;
 protected:
     Node *pRoot;
-public:
-    //funcs to work with initialization list of ints
-    BST(initializer_list<int> values);
-    template<typename ...Ts>
-    BST(Ts... ts);
-
+public:    
     BST():pRoot(nullptr) {} //initialize null pRoot
-    void RB_remove(int);
-    void RB_insert(int &);
-    
+
     //not used in script
     bool find(int x) {
         Node **p;
@@ -66,11 +66,11 @@ public:
         cout << endl;
     }
 
-private:
-    void process() {} // irrelevant
-    template <typename... Ts> // irrelevant
-    void process(int t, Ts... ts); // irrelevant
+    void RB_insert(int &);
+private:    
+    //rb_find(int x, Node **&, Node **&);
     
+    //function declarations. Prototypes are located after header.
     void left_rotate(Node *&, Node *&);
     void right_rotate(Node *&, Node *&);
     Node* RB_insert(Node *, Node *);
@@ -83,6 +83,16 @@ private:
         cout << "root,**p&: " << &pRoot << " "<< pRoot << " "<< p << " "<< *p  << endl; //**p
         while(*p) {
             if ((*p)->data==x) return true;
+            p = &((*p)->pChild[(*p)->data < x]);
+        }
+        return false;
+    }
+    
+    bool RB_find(int x, Node **&p, Node **&parent) {
+        p = &pRoot;
+        while(*p) {
+            if ((*p)->data==x) return true;
+            parent = p;
             p = &((*p)->pChild[(*p)->data < x]);
         }
         return false;
@@ -119,24 +129,44 @@ private:
     }
 
     // get pointer of sibling
-    Node *get_sibling(Node *X) {
-        if (X->pParent)
-            return X->pParent->pChild[X == X->pParent->pChild[0]]; // if compares X.data to parent.data, doesnt work beacause in some cases the remove func swaps X to sibling position. Would have to change code in other parts.
-    }
+    Node *get_sibling(Node *X);
 };
+
+class RBT: public BST{
+public:
+    template<typename ...Ts>
+    RBT(Ts... ts);
+    
+    Node *get_sibling(Node *X);
+private:
+    void process() {}
+    template <typename... Ts>
+    void process(int t, Ts... ts);
+};
+
 /* END OF HEADER */
 
-/* ROTATION FUNCTIONS*/
+/* TRYING TO USE INHERITANCE OR FRIEND OF CLASS */
+Node* RBT::get_sibling(Node *X) {
+    if (X->pParent)
+        return X->pParent->pChild[X == X->pParent->pChild[0]]; // if compares X.data to parent.data, doesnt work beacause in some cases the remove func swaps X to sibling position. Would have to change code in other parts.
+}
+// I should be using RBT to inherit from BST, but its not working
+Node* BST::get_sibling(Node *X) {
+    if (X->pParent)
+        return X->pParent->pChild[X == X->pParent->pChild[0]]; // if compares X.data to parent.data, doesnt work beacause in some cases the remove func swaps X to sibling position. Would have to change code in other parts.
+}
+    
+/* ROTATION FUNCTIONS - see book pg 313 */
 void BST::left_rotate(Node *&pRoot, Node *&X) {
-    Node *Y = X->pChild[1];
+    Node *Y = X->pChild[1]; // set X
 
-    //nova relacao de y.left (beta no livro)
-    X->pChild[1] = Y->pChild[0];
-    if (Y->pChild[0]) // mudei para = livro
+    //new relationship of y.left (beta in the book)
+    X->pChild[1] = Y->pChild[0];   // turn yâ€™s left subtree into xâ€™s right subtree
+    if (Y->pChild[0]) // Y as in the book
         X->pChild[1]->pParent = X; // book seems wrong in this case, as Y->left would be X. See penultimate row of this function
 
-    // nova relacao de X.pParent
-    Y->pParent = X->pParent;
+    Y->pParent = X->pParent; // link xâ€™s parent to y
     if (!X->pParent) // if X was root, Y will be the new root
         pRoot = Y;
     else if (X == X->pParent->pChild[0])
@@ -144,20 +174,20 @@ void BST::left_rotate(Node *&pRoot, Node *&X) {
     else
         X->pParent->pChild[1] = Y;
 
-    //nova relacao entre x e y
-    Y->pChild[0] = X;
+    //new relationship for x and y
+    Y->pChild[0] = X;       // put x on yâ€™s left
     X->pParent = Y;
 }
 
 void BST::right_rotate(Node *&pRoot, Node *&X) {
-    Node *Y = X->pChild[0];
+    Node *Y = X->pChild[0]; // set X, everything below is analogous to previous rotation
 
-    //nova relacao de y.right (beta no livro)
+    //new relationship of y.right (beta in the book)
     X->pChild[0] = Y->pChild[1];
     if (Y->pChild[1])
         X->pChild[0]->pParent = X;
 
-    // nova relacao de X.pParent
+    // new relationship of X.pParent
     Y->pParent = X->pParent;
     if (!X->pParent)
         pRoot = Y;
@@ -166,18 +196,33 @@ void BST::right_rotate(Node *&pRoot, Node *&X) {
     else
         X->pParent->pChild[1] = Y;
 
-    //nova relacao entre x e y
+    //new relationship for x and y
     Y->pChild[1] = X;
     X->pParent = Y;
 }
 
 /* INSERTION FUNCTIONS*/
-//falta o caso quando X já existe
+void BST::RB_insert(int &data) {
+    cout << data << " "<< " "<< &data << endl;
+    Node *Z = new Node(data);
+    cout << "Z: " << Z << " " << " " << Z << endl;
+    Node **p;
+    //if (!find(x, p)) {
+    //    *p = new Node(x);
+    //}
+    // insert node
+    pRoot = RB_insert(pRoot, Z);
+    // fix color violations
+    if (pRoot)
+        RB_insert_fixup(pRoot, Z);
+}
+
+// see book pg 315
 Node* BST::RB_insert(Node* subTree, Node *X) {
-    /* X será a nova raiz, se tree estiver vazia */
+    /* X is new root if root is null */
     if (!subTree) return X;
 
-    /* desce a árvore até encontrar um ponto para encaixar */
+    /* explores the tree till finding a new leaf to append to the tree */
     else {
         if (X->data < subTree->data) 	{
             subTree->pChild[0] = RB_insert(subTree->pChild[0], X);
@@ -187,18 +232,20 @@ Node* BST::RB_insert(Node* subTree, Node *X) {
             subTree->pChild[1] = RB_insert(subTree->pChild[1], X);
             subTree->pChild[1]->pParent = subTree;
         }
+        else {
+            return X; //if X already exists... are bugs possible here?
+        }
     }
-    /* return the (unchanged) node pointer */
     return subTree;
 }
 
-// This function fixes violations caused by BST insertion
+// fix color errors of insertion - see book pg 316
 void BST::RB_insert_fixup(Node *&subTree, Node *&Z) {
     Node *Z_pParent = nullptr;
     Node *Z_pGrParent = nullptr;
-    Z->color = RED;
-    //Z->pParent->color == BLACK // temp, insert bugged
-    while ((Z != subTree) && (Z->color != BLACK) && (Z->pParent->color == RED)) {
+    Z->pColor = cREd;
+    //Z->pParent->color == cBlack
+    while ((Z != subTree) && (Z->pColor != cBlack) && (Z->pParent->pColor == cREd)) {
         Z_pParent = Z->pParent;
         Z_pGrParent = Z->pParent->pParent;
 
@@ -207,10 +254,10 @@ void BST::RB_insert_fixup(Node *&subTree, Node *&Z) {
             Node *Y = Z_pGrParent->pChild[1];
 
             /* pParent and uncle are red. Recoloring both and Z.p.p */
-            if (Y  && Y->color == RED) {
-                Z_pParent->color = BLACK;
-                Y->color = BLACK;
-                Z_pGrParent->color = RED;
+            if (Y && Y->pColor == cREd) {
+                Z_pParent->pColor = cBlack;
+                Y->pColor = cBlack;
+                Z_pGrParent->pColor = cREd;
                 Z = Z_pGrParent;
             }
             else{
@@ -222,7 +269,7 @@ void BST::RB_insert_fixup(Node *&subTree, Node *&Z) {
                 }
                 /* Z is at left: only right-rotation of Z.p.p */
                 right_rotate(subTree, Z_pGrParent); // apos rotacao, vai colocar pParent acima de grandpParent
-                swap(Z_pParent->color, Z_pGrParent->color);
+                swap(Z_pParent->pColor, Z_pGrParent->pColor);
                 Z = Z_pParent;
             }
         }
@@ -232,10 +279,10 @@ void BST::RB_insert_fixup(Node *&subTree, Node *&Z) {
             Node *Y = Z_pGrParent->pChild[0];
 
             /* pParent and uncle are red. Recoloring both and Z.p.p */
-            if (Y && Y->color == RED) {
-                Z_pParent->color = BLACK;
-                Y->color = BLACK;
-                Z_pGrParent->color = RED;
+            if (Y && Y->pColor == cREd) {
+                Z_pParent->pColor = cBlack;
+                Y->pColor = cBlack;
+                Z_pGrParent->pColor = cREd;
                 Z = Z_pGrParent;
             }
             else{
@@ -247,59 +294,43 @@ void BST::RB_insert_fixup(Node *&subTree, Node *&Z) {
                 }
                 /* Z is at right: only left-rotation of Z.p.p */
                 left_rotate(subTree, Z_pGrParent); // apos rotacao, vai colocar pParent acima de grandpParent
-                swap(Z_pParent->color, Z_pGrParent->color);
+                swap(Z_pParent->pColor, Z_pGrParent->pColor);
                 Z = Z_pParent;
             }
         }
     }
 
-    subTree->color = BLACK; // needs to assure that root is black
+    subTree->pColor = cBlack; // needs to assure that root is black
 }
 
-void BST::RB_insert(int &data) {
-    cout << data << " "<< " "<< &data << endl;
-    Node *Z = new Node(data);
-    cout << "Z: " << Z << " " << " " << Z << endl;
-    Node **p;
-    //if (!find(x, p)) {
-    //    *p = new Node(x);
-    //}
-    // insert node
-    pRoot = RB_insert(pRoot, Z);
-
-    // fixup the tree after insertion
-    RB_insert_fixup(pRoot, Z);
-}
-
-/* DELETION FUNCTIONS*/
-// deletes the given node
+/* DELETION FUNCTIONS - see book pg 324*/
 void BST::RB_delete(Node *Z) {
     Node *pParent = Z->pParent;
     Node *pSibling = get_sibling(Z);
     Node *X = remove(Z); // X is succesor of Z, as in the book
 
-    // True when X and Z are both black
-    bool doubly_black = ((Z->color == BLACK) && (!X || X->color == BLACK));
+    // doubly_black = X && Z both black. See book pg 326
+    bool doubly_black = ((Z->pColor == cBlack) && (!X || X->pColor == cBlack));
 
     if (!X) {
-        // X is NULL therefore Z is leaf
+        // if X is null
         if (Z == pRoot) {
             pRoot = nullptr;
         }
         else {
             if (doubly_black) {
-                // X and Z both black
-                // Z is leaf, fix double black at Z
+                // X and Z are black
+                // Z has no child, fix colors
                 RB_delete_fixup(Z);
             }
             else {
-                // X or Z is red
+                // X or Z are red
                 if (Z->pSibling)
-                    // sibling is not null, make it red"
-                    Z->pSibling->color = RED;
+                    // Z has sibling, recolor
+                    Z->pSibling->pColor = cREd;
             }
 
-            // delete Z from the tree
+            // remove Z
             if (Z == Z->pParent->pChild[0]) {
                 pParent->pChild[0] = nullptr;
             }
@@ -311,15 +342,15 @@ void BST::RB_delete(Node *Z) {
     }
 
     if (!Z->pChild[0] || !Z->pChild[1]) {
-        // Z has 1 child
+        // only one child
         if (Z == pRoot) {
-            // Z is root, assign the value of X to Z, and delete X
+            // Z is tree root, Z=X, remove X
             Z->data = X->data;
             Z->pChild[0] = Z->pChild[1] = nullptr;
             delete X;
         }
         else {
-            // Detach Z from tree and move X up
+            // Z pruned, move X up
             if (Z == Z->pParent->pChild[0]) {
                 pParent->pChild[0] = X;
             }
@@ -329,18 +360,18 @@ void BST::RB_delete(Node *Z) {
             delete Z;
             X->pParent = pParent;
             if (doubly_black) {
-                // X and Z both black, fix double black at X
+                // X and Z are black, fix colors
                 RB_delete_fixup(X);
             }
             else {
-                // X or Z red, color X black
-                X->color = BLACK;
+                // X or Z red, Xcolor then black
+                X->pColor = cBlack;
             }
         }
         return;
     }
 
-    // Z has 2 children, swap values with succesor and recurse
+    // Z has two child, swap values, do recursion up
     swap(X->data, Z->data);
     RB_delete(X);
 }
@@ -352,78 +383,83 @@ void BST::RB_delete_fixup(Node *X) {
     Node *pSibling = get_sibling(X);
 
     if (!pSibling) {
-        // No sibiling, double black pushed up
+
         RB_delete_fixup(pParent);
     }
     else {
-        if (pSibling->color == RED) {
-            // Sibling red
-            pParent->color = RED;
-            pSibling->color = BLACK;
+        if (pSibling->pColor == cREd) {
+
+            pParent->pColor = cREd;
+            pSibling->pColor = cBlack;
             if (pSibling == pSibling->pParent->pChild[0]) {
-                // left case
+
                 right_rotate(pRoot, pParent);
             }
             else {
-                // right case
+
                 left_rotate(pRoot, pParent);
             }
             RB_delete_fixup(X);
         }
     else {
-        // Sibling black
-        if (pSibling->pChild[0]->color == RED || pSibling->pChild[1]->color == RED) {
-        // at least 1 red children
-            if (pSibling->pChild[0] && pSibling->pChild[0]->color == RED) {
+
+        if (pSibling->pChild[0]->pColor == cREd || pSibling->pChild[1]->pColor == cREd) {
+
+            if (pSibling->pChild[0] && pSibling->pChild[0]->pColor == cREd) {
                 if (pSibling == pSibling->pParent->pChild[0]) {
-                    // left left
-                    pSibling->pChild[0]->color = pSibling->color;
-                    pSibling->color = pParent->color;
+
+                    pSibling->pChild[0]->pColor = pSibling->pColor;
+                    pSibling->pColor = pParent->pColor;
                     right_rotate(pRoot, pParent);
                 }
                 else {
-                    // right left
-                    pSibling->pChild[0]->color = pParent->color;
+
+                    pSibling->pChild[0]->pColor = pParent->pColor;
                     right_rotate(pRoot, pSibling);
                     left_rotate(pRoot, pParent);
                 }
         }
         else {
             if (pSibling == pSibling->pParent->pChild[0]) {
-                // left right
-                pSibling->pChild[1]->color = pParent->color;
+
+                pSibling->pChild[1]->pColor = pParent->pColor;
                 left_rotate(pRoot, pSibling);
                 right_rotate(pRoot, pParent);
             }
             else {
-                // right right
-                pSibling->pChild[1]->color = pSibling->color;
-                pSibling->color = pParent->color;
+
+                pSibling->pChild[1]->pColor = pSibling->pColor;
+                pSibling->pColor = pParent->pColor;
                 left_rotate(pRoot, pParent);
             }
         }
-        pParent->color = BLACK;
+        pParent->pColor = cBlack;
         }
         else {
-            // 2 black children
-            pSibling->color = RED;
-            if (pParent->color == BLACK)
+
+            pSibling->pColor = cREd;
+            if (pParent->pColor == cBlack)
                 RB_delete_fixup(pParent);
             else
-                pParent->color = BLACK;
+                pParent->pColor = cBlack;
         }
     }
     }
 }
 
-//template <typename... Ts>//void BST::process(int t, Ts... ts) {//    RB_insert(t);//    this->process(ts...);//}
-//initialize null pRoot
-BST::BST(initializer_list<int> values):pRoot(nullptr) {
-    for (auto val: values) {this->RB_insert(val);   }  }
+template<typename ...Ts>
+RBT::RBT(Ts... ts): BST() {
+    process(ts...);
+}
+template <typename... Ts>
+void RBT::process(int t, Ts... ts) {
+    BST::RB_insert(t);
+    this->process(ts...);
+}
 
 int main() {
-    BST rbt({41, 38, 31, 12, 19, 8});
-
+    RBT rbt(41, 38, 31, 31, 12, 19, 8);
+    //RBT rbt(41, 38, 31,5,6,4,7,3,31, 12, 19, 8);
     cout << "\n\narvore gerada\n";
     rbt.print();
 
