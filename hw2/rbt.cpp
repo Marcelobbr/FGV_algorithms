@@ -19,60 +19,53 @@ struct Node {
     }
 };
 
-class RBTree {
+class BST {
 protected:
     Node *pRoot;
 public:
     //funcs to work with initialization list of ints
-    RBTree(initializer_list<int> values);
-    void push_back(int x);
+    BST(initializer_list<int> values);
     template<typename ...Ts>
-    RBTree(Ts... ts);
+    BST(Ts... ts);
 
-    RBTree() { pRoot = nullptr; }
+    BST():pRoot(nullptr) {} //initialize null pRoot
     void RB_remove(int);
     void RB_insert(int &);
-
-    //bool find(int x) {
-    //    Node **p;
-    //    return find(x, p);
-    //}
     
+    //not used in script
+    bool find(int x) {
+        Node **p;
+        return find(x, p);
+    }
+    
+    //void insert(int x) {
+    //    Node **p;
+    //    if (!find(x, p)) {
+    //        *p = new Node(x);
+    //    }
+    //}
     void insert(int x) {
         Node **p;
         if (!find(x, p)) {
             *p = new Node(x);
         }
         cout << "*p " << *p << " " << &x << " " << x << endl; //<<
-        RB_insert_fixup(*&pRoot, **&p);
-        //RB_insert(pRoot, *p);
+        RB_insert(pRoot, *p);
+        RB_insert_fixup(pRoot, *p);
     }
+
     void remove(int x) {
         Node **p;
         if(find(x, p))
-            remove(*p);
+            //remove(*p);
+            RB_delete(*p);
     }
 
     void print() {
         print(pRoot);
         cout << endl;
     }
-    //estou usando esse search em vez do find acima para deletar
-    Node *search(int X) {
-        Node *temp = pRoot;
-        while (temp != nullptr) {
-            if (X < temp->data) {
-                if (temp->pChild[0] == nullptr) break;
-                else temp = temp->pChild[0];
-            }
-            else if (X == temp->data) break;
-            else {
-                if (temp->pChild[1] == nullptr) break;
-                else temp = temp->pChild[1];
-            }
-        }
-        return temp;
-    }
+
 private:
     void process() {} // irrelevant
     template <typename... Ts> // irrelevant
@@ -95,14 +88,18 @@ private:
         return false;
     }
 
-    void remove(Node *&p) {
+    // get pointer of succesor
+    //void remove(Node *&p) {
+    Node *remove(Node *&p) {
         if (!p->pChild[0] || !p->pChild[1])
-            p = p->pChild[p->pChild[1]!=nullptr];
+            //p = p->pChild[p->pChild[1]!=nullptr];
+            return p->pChild[p->pChild[1]!=nullptr];
         else {
             Node **succesor = &(p->pChild[1]);
             find_min(succesor);
-            p->data = (*succesor)->data;
-            remove(*succesor);
+            //p->data = (*succesor)->data;
+            //remove(*succesor);
+            return *succesor;
         }
     }
 
@@ -120,45 +117,27 @@ private:
             print(p->pChild[0], indent+6);
         }
     }
-    /* DELETE*/
-    // returns pointer to sibling - CHANGED!
-    Node *get_sibling(Node *X) {
-        if (X->pParent == nullptr) return nullptr;
-        if (X == X->pParent->pChild[0]) return X->pParent->pChild[1];
-        return X->pParent->pChild[0];
-    }
 
-    Node *successor(Node *X) {
-        Node *temp = X;
-        while (temp->pChild[0] != nullptr)
-            temp = temp->pChild[0];
-        return temp;
-    }
-    // find node that replaces a deleted node in BST
-    Node *BSTreplace(Node *x) {
-        // when node have 2 children
-        //Node **succesor = &(x->pChild[1]); // included
-        //find_min(succesor);                 // included
-        //x->data = (*succesor)->data;       // included
-        if (x->pChild[0] == nullptr) return x->pChild[1];
-        else if (x->pChild[1] == nullptr) return x->pChild[0];
-        else return successor(x->pChild[1]);
+    // get pointer of sibling
+    Node *get_sibling(Node *X) {
+        if (X->pParent)
+            return X->pParent->pChild[X == X->pParent->pChild[0]]; // if compares X.data to parent.data, doesnt work beacause in some cases the remove func swaps X to sibling position. Would have to change code in other parts.
     }
 };
 /* END OF HEADER */
 
 /* ROTATION FUNCTIONS*/
-void RBTree::left_rotate(Node *&pRoot, Node *&X) {
+void BST::left_rotate(Node *&pRoot, Node *&X) {
     Node *Y = X->pChild[1];
 
     //nova relacao de y.left (beta no livro)
     X->pChild[1] = Y->pChild[0];
-    if (Y->pChild[0] != nullptr) // mudei para = livro
-        X->pChild[1]->pParent = X; // livro parece errado neste caso, pois Y->left vai ser o X. Ver penultima linha desta funcao
+    if (Y->pChild[0]) // mudei para = livro
+        X->pChild[1]->pParent = X; // book seems wrong in this case, as Y->left would be X. See penultimate row of this function
 
     // nova relacao de X.pParent
     Y->pParent = X->pParent;
-    if (X->pParent == nullptr) // se X era root, Y será novo root
+    if (!X->pParent) // if X was root, Y will be the new root
         pRoot = Y;
     else if (X == X->pParent->pChild[0])
         X->pParent->pChild[0] = Y;
@@ -170,17 +149,17 @@ void RBTree::left_rotate(Node *&pRoot, Node *&X) {
     X->pParent = Y;
 }
 
-void RBTree::right_rotate(Node *&pRoot, Node *&X) {
+void BST::right_rotate(Node *&pRoot, Node *&X) {
     Node *Y = X->pChild[0];
 
     //nova relacao de y.right (beta no livro)
     X->pChild[0] = Y->pChild[1];
-    if (Y->pChild[1] != nullptr)
+    if (Y->pChild[1])
         X->pChild[0]->pParent = X;
 
     // nova relacao de X.pParent
     Y->pParent = X->pParent;
-    if (X->pParent == nullptr)
+    if (!X->pParent)
         pRoot = Y;
     else if (X == X->pParent->pChild[0])
         X->pParent->pChild[0] = Y;
@@ -194,9 +173,9 @@ void RBTree::right_rotate(Node *&pRoot, Node *&X) {
 
 /* INSERTION FUNCTIONS*/
 //falta o caso quando X já existe
-Node* RBTree::RB_insert(Node* subTree, Node *X) {
+Node* BST::RB_insert(Node* subTree, Node *X) {
     /* X será a nova raiz, se tree estiver vazia */
-    if (subTree == nullptr) return X;
+    if (!subTree) return X;
 
     /* desce a árvore até encontrar um ponto para encaixar */
     else {
@@ -214,7 +193,7 @@ Node* RBTree::RB_insert(Node* subTree, Node *X) {
 }
 
 // This function fixes violations caused by BST insertion
-void RBTree::RB_insert_fixup(Node *&subTree, Node *&Z) {
+void BST::RB_insert_fixup(Node *&subTree, Node *&Z) {
     Node *Z_pParent = nullptr;
     Node *Z_pGrParent = nullptr;
     Z->color = RED;
@@ -228,7 +207,7 @@ void RBTree::RB_insert_fixup(Node *&subTree, Node *&Z) {
             Node *Y = Z_pGrParent->pChild[1];
 
             /* pParent and uncle are red. Recoloring both and Z.p.p */
-            if (Y != nullptr && Y->color == RED) {
+            if (Y  && Y->color == RED) {
                 Z_pParent->color = BLACK;
                 Y->color = BLACK;
                 Z_pGrParent->color = RED;
@@ -253,7 +232,7 @@ void RBTree::RB_insert_fixup(Node *&subTree, Node *&Z) {
             Node *Y = Z_pGrParent->pChild[0];
 
             /* pParent and uncle are red. Recoloring both and Z.p.p */
-            if ((Y != nullptr) && (Y->color == RED)) {
+            if (Y && Y->color == RED) {
                 Z_pParent->color = BLACK;
                 Y->color = BLACK;
                 Z_pGrParent->color = RED;
@@ -277,30 +256,32 @@ void RBTree::RB_insert_fixup(Node *&subTree, Node *&Z) {
     subTree->color = BLACK; // needs to assure that root is black
 }
 
-void RBTree::RB_insert(int &data) {
+void BST::RB_insert(int &data) {
     cout << data << " "<< " "<< &data << endl;
     Node *Z = new Node(data);
     cout << "Z: " << Z << " " << " " << Z << endl;
-
-    // Do a normal BST insert
+    Node **p;
+    //if (!find(x, p)) {
+    //    *p = new Node(x);
+    //}
+    // insert node
     pRoot = RB_insert(pRoot, Z);
 
-    // fix Red Black Tree violations
-    //Z->color = RED;
+    // fixup the tree after insertion
     RB_insert_fixup(pRoot, Z);
 }
 
 /* DELETION FUNCTIONS*/
 // deletes the given node
-void RBTree::RB_delete(Node *Z) {
-    Node *pSibling;
+void BST::RB_delete(Node *Z) {
     Node *pParent = Z->pParent;
-    Node *X = BSTreplace(Z); // X is successor of Z, as in the book
+    Node *pSibling = get_sibling(Z);
+    Node *X = remove(Z); // X is succesor of Z, as in the book
 
     // True when X and Z are both black
-    bool doubly_black = ((Z->color == BLACK) && (X == nullptr || X->color == BLACK));
+    bool doubly_black = ((Z->color == BLACK) && (!X || X->color == BLACK));
 
-    if (X == nullptr) {
+    if (!X) {
         // X is NULL therefore Z is leaf
         if (Z == pRoot) {
             pRoot = nullptr;
@@ -313,8 +294,7 @@ void RBTree::RB_delete(Node *Z) {
             }
             else {
                 // X or Z is red
-                pSibling = get_sibling(Z);
-                if (Z->pSibling != nullptr)
+                if (Z->pSibling)
                     // sibling is not null, make it red"
                     Z->pSibling->color = RED;
             }
@@ -330,7 +310,7 @@ void RBTree::RB_delete(Node *Z) {
         delete Z; return;
     }
 
-    if (Z->pChild[0] == nullptr || Z->pChild[1] == nullptr) {
+    if (!Z->pChild[0] || !Z->pChild[1]) {
         // Z has 1 child
         if (Z == pRoot) {
             // Z is root, assign the value of X to Z, and delete X
@@ -360,18 +340,18 @@ void RBTree::RB_delete(Node *Z) {
         return;
     }
 
-    // Z has 2 children, swap values with successor and recurse
+    // Z has 2 children, swap values with succesor and recurse
     swap(X->data, Z->data);
     RB_delete(X);
 }
 
-void RBTree::RB_delete_fixup(Node *X) {
+void BST::RB_delete_fixup(Node *X) {
     if (X == pRoot) return;
 
     Node *pParent = X->pParent;
     Node *pSibling = get_sibling(X);
 
-    if (pSibling == nullptr) {
+    if (!pSibling) {
         // No sibiling, double black pushed up
         RB_delete_fixup(pParent);
     }
@@ -394,7 +374,7 @@ void RBTree::RB_delete_fixup(Node *X) {
         // Sibling black
         if (pSibling->pChild[0]->color == RED || pSibling->pChild[1]->color == RED) {
         // at least 1 red children
-            if (pSibling->pChild[0] != nullptr && pSibling->pChild[0]->color == RED) {
+            if (pSibling->pChild[0] && pSibling->pChild[0]->color == RED) {
                 if (pSibling == pSibling->pParent->pChild[0]) {
                     // left left
                     pSibling->pChild[0]->color = pSibling->color;
@@ -436,28 +416,18 @@ void RBTree::RB_delete_fixup(Node *X) {
     }
 }
 
-void RBTree::RB_remove(int X) {
-    if (pRoot == nullptr) return;
-    Node *v = search(X);
-    Node *u;
-    if (v->data != X) return;
-    RB_delete(v);
-}
-
-//template <typename... Ts>//void RBTree::process(int t, Ts... ts) {//    RB_insert(t);//    this->process(ts...);//}
-
-RBTree::RBTree(initializer_list<int> values):pRoot(nullptr) {
-    for (auto val: values) {
-        this->RB_insert(val);
-    }  }
+//template <typename... Ts>//void BST::process(int t, Ts... ts) {//    RB_insert(t);//    this->process(ts...);//}
+//initialize null pRoot
+BST::BST(initializer_list<int> values):pRoot(nullptr) {
+    for (auto val: values) {this->RB_insert(val);   }  }
 
 int main() {
-    RBTree rbt({41, 38, 31, 12, 19, 8});
+    BST rbt({41, 38, 31, 12, 19, 8});
 
     cout << "\n\narvore gerada\n";
     rbt.print();
 
-    rbt.RB_remove(19);
+    rbt.remove(19);
     cout << "\n\narvore apos delecao\n";
     rbt.print();
     return 0;
