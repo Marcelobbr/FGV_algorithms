@@ -8,6 +8,7 @@
 \usepackage[linesnumbered,ruled,vlined]{algorithm2e}
 \usepackage{enumitem}
 \usepackage{amsmath}
+\usepackage{color,soul}
 
 \definecolor{mygreen}{rgb}{0,0.6,0}
 
@@ -83,12 +84,14 @@ Ver arquivo rbt.cpp.
 
 Como referências, usei:
 \begin{itemize}
-	\item Livro "Introduction to Algorithms", capítulo 13 (CORMEN, Thomas et al).
+	\item Livro "Introduction to Algorithms", capítulo 13 (CORMEN, Thomas et al), terceira edição.
 	\item Slide L3 do curso de Standford que está sendo utilizado pelo professor. 
 	\begin{itemize}
 		\item Link: http://web.stanford.edu/class/archive/cs/cs161/cs161.1178/
 	\end{itemize}
 \end{itemize}
+
+Ao menos para o exemplo de teste, o algoritmo funcionou corretamente.
 
 \section{Radix Sort}
 
@@ -123,7 +126,7 @@ Como referências, usei:
 \end{itemize}
   
  
-Além do exemplo de teste fiz mais alguns com números naturais. O radix sort faz  recursão em cada dígito do conjunto de elementos da lista e chama bucket sort, que por sua vez cria uma chave-valor e usa o dígito como chave, chamando em seguida um stable sort em cada bucket gerado. Escolhi o insert sort dado que o foco não está na escolha do stable sort por algum critério específico. Nesse caso, o insertion sort ocupa menos linhas, tornando o código mais conciso de modo a visualizar suas outras partes.
+Além do exemplo de teste, fiz mais alguns testes com números naturais. O radix sort faz  recursão em cada dígito do conjunto de elementos da lista e chama bucket sort, que por sua vez cria uma chave-valor e usa o dígito como chave, chamando em seguida um stable sort em cada bucket gerado. Escolhi o insert sort dado que o foco não está na escolha do stable sort por algum critério específico. Nesse caso, o insertion sort ocupa menos linhas, tornando o código mais conciso de modo a visualizar mais rápido as outras funções.
 
 \section{Sorting in Place in Linear Time}
 \textbf{(1.5pts)} Suppose that we have an array of $n$ data records to sort and that the key of each record has the value 0 or 1. An algorithm for sorting such a set of records might possess some subset of the following three desirable characteristics:
@@ -145,19 +148,49 @@ Além do exemplo de teste fiz mais alguns com números naturais. O radix sort fa
 
 \textbf{Resposta}:\\
 
-a) Nesse caso, podemos aplicar counting sort, dado que sabemos o número distinto de valores. Counting sort tem complexidade O(n) e é um stable sort, tal como demonstrado no livro.\\
+a) \\
+Nesse caso, podemos aplicar \textbf{Counting sort}, dado que sabemos o número distinto de valores. Counting sort tem complexidade \textbf{O(n)} e é um stable sort, tal como demonstrado no livro.\\
 
-b) Nesse caso específico, Quicksort pode ser aplicado uma única vez se escolhermos 0 como pivô, dado que isso vai separar a lista, deixando todos os 0s do lado esquerdo e todos os 1s do lado direito. Quicksort é sempre inplace. Sua complexidade em geral é O(nlogn), mas será O(n) neste caso. \\
+b) \\
+Nesse caso específico, \textbf{Quicksort }pode ser aplicado ao escolhermos x = 0 como pivô e usar \textbf{partition} em cima desse valor, dado que isso vai separar a lista, deixando todos os 0s do lado esquerdo (elementos i tal que $i\leq0$) e todos os 1s do lado direito (elementos i tal que $i>0$). Quicksort é sempre inplace. Sua complexidade será \textbf{O(n)} neste caso, dada a especificidade do problema, apesar de ser em geral O(nlogn). \\
 
-c) Insertion sort é in place e também é conhecido como um stable sort.
+c) \\
+\textbf{Insertion sort} é inplace e também é conhecido como um stable sort. O algoritmo faz contínua comparação entre A[i] (cur\_value) e A[j]. Consideremos $i < j$ e A[i] = A[j]. Nesse caso, A[i] virá primeiro e será encaixado iterando em ordem decrescente a j (chamemos cada elemento dessa iteração de j') até que $j'\leq i$, alterando A[i] para A[j'+1] (chamemos essa posição de A[k]). Quando for a vez de j passar por esse mesmo processo, será também deslocado para a esquerda, mas não poderá ultrapassar a nova posição de i  (A[k]), dado que a condição para mudar a posição do algoritmo é: 
+
+\hl{while $j' \geq 0$ and $A[j'] > cur\_value$} (lembrando que agora $cur\_value$ = A[j]).\\
+
+Como essa comparação com o A[k] não é satiseita, saímos do loop e A[j] estará à direita de A[k] (novo A[i]), garantindo assim que é um stable sort.
 \\
 
-d) Counting sort. 
+
+d) \\
+Nesse caso, \textbf{Counting sort}. Sabemos que Counting sort possui running time de O(n). Para chaves b-bit com valores variando somente entre 0 e 1, teremos um running time de:\\
+O(b(n+2)) = cb(n+2) (para algum $c>0$) \\
+= cbn + cb\\
+= O(bn).
 \\
 
-e)
+e)\\
+O algoritmo inicia parecido com o Counting sort original (ver CORMEN, Thomas et al pg 195). Dessa vez não será um stable sort, mas será inplace.
 
+Escrevendo em pseudo-código semelhante a python:\\
 
+k = max(A)\\
+
+def COUNTING\_SORT\_INPLACE(A,k):\\
+1 B = [0] * k
+ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \#cria array de 0s de tamanho k\\
+2 for i in range(length(A)):\\
+3 ---\-B[A[i]] = B[A[i]] + 1 
+ \ \ \ \ \ \ \# B[i] agora contém o número de elementos iguais a i.\\
+4 count = 0
+ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \# a partir daqui, é diferente de counting sort original\\
+5 for i in range(0,k):\\
+6 ---\- for j in range(1,B[i]):\\
+7 -------- A[count] = i\\
+8 -------- count += 1\\
+
+A complexidade do novo algoritmo será O(n+k). O mais correto será usá-lo quando k = O(n), pois nesse caso, a complexidade do algoritmo será $\Theta$(n) (ver CORMEN, Thomas et al pg 196). 
 \section{Alternative Quicksort Analysis} 
 \textbf{(1.5pts)} An alternative analysis of the running time of randomized quicksort focuses on the expected running time of each individual recursive call to QUICKSORT, rather than on the number of comparisons performed.
 
@@ -187,11 +220,8 @@ e)
 
 \textbf{Respostas}:\\
 
-ver livro , 118, 179\\
-
-
 a)\\
-Tal como explicado no livro "Introduction to Algorithms", capítulo 5 (CORMEN, Thomas et al), dado um espaço amostral S e um evento A, a Indicadora da variável aleatória I\{A\} associada ao evento A será definida por:
+Tal como explicado no livro "Introduction to Algorithms", capítulo 5 (CORMEN, Thomas et al, pgs 118, 179), dado um espaço amostral S e um evento A, a Indicadora da variável aleatória I\{A\} associada ao evento A será definida por:
 
 \[
  I\{A\}\ =
@@ -216,7 +246,7 @@ X_{i} =
 \right.
 \]
 
-O número esperado de vezes que $A_{i}$ será selecionado como pivô é simplesmente o valor esperado da variável indicadora Xi:	 \\
+O número esperado de vezes que $A_{i}$ será selecionado como pivô é simplesmente o valor esperado da variável indicadora Xi, dado que cada elemento tem a mesma probabilidade de acontecer:	 \\
 \begin{align*}
 & E[X_{i}] = E[I\{A_{i}\}] \\
 & = 1\cdot Pr\{A_{i}\} + 0\cdot Pr\{A_{i}\}  \\
@@ -234,19 +264,19 @@ QUICKSORT(A, p, r) \\
 3. ---- QUICKSORT(A, p, q-1) \\
 4. ---- QUICKSORT(A, q+1, r) \\
 Sendo que a chamada inicial da função é: QUICKSORT(A,1,A.length).\\
-Não precisamos entrar em muitos detalhes sobre o PARTITION. Essencialmente, será definido um pivô "q" por meio do qual o array A será dividido entre os elementos menores do que 'q' (elementos q-1) e os maiores do que 'q' (elementos n-q), formando duas sublistas onde se dará nova recursão. Tal tarefa de particionamento tem custo linear, $\Theta(n)$\\
+Não precisamos entrar em muitos detalhes sobre o PARTITION. Essencialmente, será definido um pivô "q" por meio do qual o array A será dividido entre os elementos menores do que 'q' (elementos q-1) e os maiores do que 'q' (elementos n-q), formando duas sublistas onde se dará nova recursão em cada uma delas. Tal tarefa de particionamento tem custo linear, $\Theta(n)$\\
 Portanto, a recursão de quicksort é:\\
 \begin{equation}
  T(n) = T(q-1)+T(n-q)+\Theta(n)
 \end{equation}
 
-A partir daqui, sabemos uma das principais propriedades da expectância, a de linearidade. Basta aplicar sobre cada um dos eventos $X_{i}$ para chegarmos ao resultado:
+A partir daqui, sabemos uma das principais propriedades da expectância, a de linearidade. Basta aplicar sobre todos os eventos $X_{i}$ (definido na proposição 'a') para chegarmos ao resultado:
 \begin{equation}
 E[T(n)]=E\left[\sum_{q=1}^{n}X_q(T(q-1)+T(n-q)+\Theta(n))\right]  
 \end{equation}
 
 
-c) rever. rever theta. rever linha 6 \\
+c) 
 \begin{align*}
 &E[T(n)]=E\left[\sum_{q=1}^{n}X_q(T(q-1)+T(n-q)+\Theta(n))\right]   \\
 &= \sum_{q=1}^n  E[X_q(T(q-1)+T(n-q)+\Theta(n))]\\
@@ -260,10 +290,23 @@ c) rever. rever theta. rever linha 6 \\
 \end{align*}
 
 d)
+Resolvendo por integração, ao considerarmos $f(k) = k\lg k$ como função contínua, temos que $f'(k) = \lg k + 1$. Ao fazer integração por partes, temos a função F cuja derivação leva a $k\lg k$:
+
+$$\frac{1}{\lg 2}(\frac{k^2}{2}\ln k-\frac{k^2}{4}).$$
+
+Usando os limites e fazendo subtração, obtemos $\frac{n^2\lg n}{2} - \frac{n^2}{4\ln 2} - 1$. Dado o intervalo \{2,n-1\}, $f$ é uma derivada positiva sobre todo esse intervalo. Como estamos comparando com uma função contínua, nosso resultado nunca poderá ser maior do que a aproximação. Logo:
+
+$$
+\begin{aligned}
+\sum_{k = 2}^{n - 1} k\lg k
+& \le \frac{n^2\lg n}{2} - \frac{n^2}{4\ln 2} - 1 \\\\
+& \le \frac{n^2\lg n}{2} - \frac{n^2}{8}, \text{dado que $\ln 2 > 1 / 2$}
+\end{aligned}
+$$
 
 e)
 
-Utilizando o método de substituição, estipulamos que $T(q) \le q \lg(q)-bn$ e assumimos por indução que a propriedade se mantém. Pela proposição "c", temos que:
+Utilizando o método de substituição, estipulamos que $T(q) \le q \lg(q)-bq$ e assumimos por indução que a propriedade se mantém. Pela proposição "c", temos que:
 
 \begin{align*}
 \text E[T(n)]
@@ -273,10 +316,11 @@ Utilizando o método de substituição, estipulamos que $T(q) \le q \lg(q)-bn$ e
 & \le \frac{2}{n}(\frac{1}{2}an^2\lg n - \frac{a}{8}n^2 -\frac{bn^2}{2}) + \Theta(n)\  \text{Aplicando o resultado de "d".}\\
 & = an\lg n -\frac{an}{4} - \frac{2}{n}\frac{bn^2}{2} + \Theta(n) \\
 & = an\lg n - bn -\frac{an}{4} + \Theta(n) \\ 
-& \le an\lg n - bn + \Theta(n),\ \forall a,b > 0\\
-& = \Theta(n\lg n).
+& \le an\lg n - bn,\ (\exists \text{a$>$0 e b$>$0 que satisfazem a desigualdade, tal como sugerido pelo enunciado})\\
 \end{align*}
 
+Logo, o passo indutivo está comprovado e podemos dizer que:\\
+$E[T(n)] = \Theta(n\lg n)$
 %OLD
 %\begin{align*}
 %\text E[T(n)]

@@ -14,8 +14,6 @@ using namespace std;
  * * I tried to make RBT to inherit from BST or use it as a friend, but its not working. So I had to change BST directly.
  */
  
-enum COLOR {cREd, cBlack};
-
 struct Node {
     int data;
     bool pColor;
@@ -32,26 +30,16 @@ protected:
 public:    
     BST():pRoot(nullptr) {} //initialize null pRoot
 
-    //not used in script
     bool find(int x) {
         Node **p;
         return find(x, p);
     }
     
-    //void insert(int x) {
-    //    Node **p;
-    //    if (!find(x, p)) {
-    //        *p = new Node(x);
-    //    }
-    //}
     void insert(int x) {
         Node **p;
         if (!find(x, p)) {
             *p = new Node(x);
         }
-        cout << "*p " << *p << " " << &x << " " << x << endl; //<<
-        RB_insert(pRoot, *p);
-        RB_insert_fixup(pRoot, *p);
     }
 
     void remove(int x) {
@@ -68,12 +56,10 @@ public:
 
     void RB_insert(int &);
 private:    
-    //rb_find(int x, Node **&, Node **&);
-    
     //function declarations. Prototypes are located after header.
     void left_rotate(Node *&, Node *&);
     void right_rotate(Node *&, Node *&);
-    Node* RB_insert(Node *, Node *);
+    Node* RB_find_or_insert(Node *, Node *);
     void RB_insert_fixup(Node *&, Node *&);
     void RB_delete(Node *);
     void RB_delete_fixup(Node *);
@@ -144,6 +130,8 @@ private:
     void process(int t, Ts... ts);
 };
 
+enum COLOR {cREd, cBlack};
+
 /* END OF HEADER */
 
 /* TRYING TO USE INHERITANCE OR FRIEND OF CLASS */
@@ -162,11 +150,11 @@ void BST::left_rotate(Node *&pRoot, Node *&X) {
     Node *Y = X->pChild[1]; // set X
 
     //new relationship of y.left (beta in the book)
-    X->pChild[1] = Y->pChild[0];   // turn yâ€™s left subtree into xâ€™s right subtree
+    X->pChild[1] = Y->pChild[0];   // turn ys left subtree into xs right subtree
     if (Y->pChild[0]) // Y as in the book
         X->pChild[1]->pParent = X; // book seems wrong in this case, as Y->left would be X. See penultimate row of this function
 
-    Y->pParent = X->pParent; // link xâ€™s parent to y
+    Y->pParent = X->pParent; // link xs parent to y
     if (!X->pParent) // if X was root, Y will be the new root
         pRoot = Y;
     else if (X == X->pParent->pChild[0])
@@ -175,7 +163,7 @@ void BST::left_rotate(Node *&pRoot, Node *&X) {
         X->pParent->pChild[1] = Y;
 
     //new relationship for x and y
-    Y->pChild[0] = X;       // put x on yâ€™s left
+    Y->pChild[0] = X;       // put x on ys left
     X->pParent = Y;
 }
 
@@ -207,29 +195,26 @@ void BST::RB_insert(int &data) {
     Node *Z = new Node(data);
     cout << "Z: " << Z << " " << " " << Z << endl;
     Node **p;
-    //if (!find(x, p)) {
-    //    *p = new Node(x);
-    //}
     // insert node
-    pRoot = RB_insert(pRoot, Z);
+    pRoot = RB_find_or_insert(pRoot, Z);
     // fix color violations
     if (pRoot)
         RB_insert_fixup(pRoot, Z);
 }
 
 // see book pg 315
-Node* BST::RB_insert(Node* subTree, Node *X) {
+Node* BST::RB_find_or_insert(Node* subTree, Node *X) {
     /* X is new root if root is null */
     if (!subTree) return X;
 
     /* explores the tree till finding a new leaf to append to the tree */
     else {
         if (X->data < subTree->data) 	{
-            subTree->pChild[0] = RB_insert(subTree->pChild[0], X);
+            subTree->pChild[0] = RB_find_or_insert(subTree->pChild[0], X);
             subTree->pChild[0]->pParent = subTree;
         }
         else if (X->data > subTree->data) {
-            subTree->pChild[1] = RB_insert(subTree->pChild[1], X);
+            subTree->pChild[1] = RB_find_or_insert(subTree->pChild[1], X);
             subTree->pChild[1]->pParent = subTree;
         }
         else {
@@ -458,8 +443,8 @@ void RBT::process(int t, Ts... ts) {
 }
 
 int main() {
-    RBT rbt(41, 38, 31, 31, 12, 19, 8);
-    //RBT rbt(41, 38, 31,5,6,4,7,3,31, 12, 19, 8);
+    RBT rbt(41, 38, 31, 12, 19, 8);
+    //RBT rbt(41, 38, 31, 31,5,6,4,7,3,31, 12, 19, 8);
     cout << "\n\narvore gerada\n";
     rbt.print();
 
