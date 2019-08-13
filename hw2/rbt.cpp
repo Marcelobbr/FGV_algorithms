@@ -66,7 +66,7 @@ private:
     
     bool find(int x, Node **&p) {
         p = &pRoot;
-        cout << "root,**p&: " << &pRoot << " "<< pRoot << " "<< p << " "<< *p  << endl; //**p
+        //cout << "root,**p&: " << &pRoot << " "<< pRoot << " "<< p << " "<< *p  << endl; //**p
         while(*p) {
             if ((*p)->data==x) return true;
             p = &((*p)->pChild[(*p)->data < x]);
@@ -191,9 +191,9 @@ void BST::right_rotate(Node *&pRoot, Node *&X) {
 
 /* INSERTION FUNCTIONS*/
 void BST::RB_insert(int &data) {
-    cout << data << " "<< " "<< &data << endl;
+    //cout << data << " "<< " "<< &data << endl;
     Node *Z = new Node(data);
-    cout << "Z: " << Z << " " << " " << Z << endl;
+    //cout << "Z: " << Z << " " << " " << Z << endl;
     Node **p;
     // insert node
     pRoot = RB_find_or_insert(pRoot, Z);
@@ -444,12 +444,17 @@ void RBT::process(int t, Ts... ts) {
 
 int main() {
     RBT rbt(41, 38, 31, 12, 19, 8);
-    //RBT rbt(41, 38, 31, 31,5,6,4,7,3,31, 12, 19, 8);
-    cout << "\n\narvore gerada\n";
+    cout << "\n\ngenerated tree -- read from left to right: root is at left, leaves are at right\n";
     rbt.print();
 
     rbt.remove(19);
-    cout << "\n\narvore apos delecao\n";
+    cout << "\n\ntree after deletion -- read from left to right: root is at left, leaves are at right\n";
     rbt.print();
+    
+    //2nd test
+    RBT rbt_long(1, 4, 20, 19, 15, 100, 2, 8, 75, 23, 45, 7, 3, 14, 33);
+    cout << "\n\nsecond generated tree -- read from left to right: root is at left, leaves are at right\n";
+    rbt_long.print();   
+    
     return 0;
 }
