@@ -6,12 +6,14 @@
 using namespace std;
 
 /* 
- * AS REFERENCE, I AM USING:
+ * AS MAIN REFERENCES, I AM USING:
  * BOOK: "Introduction to Algorithms", cap 13 (CORMEN, Thomas et al), third edition.
  * Slide L3 from course at Standford which is being used by the teacher.
  * * Link: http://web.stanford.edu/class/archive/cs/cs161/cs161.1178/
- * Also I had to watch videos (about C++ and red-black trees) and read examples of C++ across many websites.
- * * I tried to make RBT to inherit from BST or use it as a friend, but its not working. So I had to change BST directly.
+ * I tried to make RBT to inherit from BST or use it as a friend, but its not working. So I had to change BST directly.
+ * RBtrees might also be testet[D] at the following links:
+ * * cs.armstrong.edu/liang/animation/web/RBTree.html 
+ * * https://www.cs.usfca.edu/~galles/visualization/RedBlack.html
  */
  
 struct Node {
