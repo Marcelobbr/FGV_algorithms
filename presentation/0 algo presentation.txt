@@ -1,7 +1,0 @@
-September 12 (9:20 - 12:50)
-Dynamic Programming II
-Marcelo Barata Ribeiro & William Sena
-
-https://www.geeksforgeeks.org/unbounded-knapsack-repetition-items-allowed/
-https://www.geeksforgeeks.org/0-1-knapsack-problem-dp-10/
-
