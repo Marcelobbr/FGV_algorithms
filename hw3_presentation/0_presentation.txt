@@ -1,0 +1,23 @@
+September 12 (9:20 - 12:50)
+Dynamic Programming II
+Marcelo Barata Ribeiro & William Sena
+
+dasgupta
+dynamic programming 161
+knapsack 171
+independent set 179
+Longest Common Subsequence 174 dasgupta 2
+
+coding:
+https://www.geeksforgeeks.org/unbounded-knapsack-repetition-items-allowed/
+https://www.geeksforgeeks.org/0-1-knapsack-problem-dp-10/
+
+lectures:
+http://cse.unl.edu/~goddard/Courses/CSCE310J/Lectures/Lecture8-DynamicProgramming.pdf
+http://syllabus.cs.manchester.ac.uk/ugt/2018/COMP26120/lab/knapsack.pdf
+
+Proof:
+only for greedy case
+    https://courses.engr.illinois.edu/cs598csc/sp2011/Lectures/lecture_6.pdf
+
+divide and conquer argument dasgupta 164

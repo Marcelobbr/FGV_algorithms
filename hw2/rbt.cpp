@@ -11,7 +11,7 @@ using namespace std;
  * Slide L3 from course at Standford which is being used by the teacher.
  * * Link: http://web.stanford.edu/class/archive/cs/cs161/cs161.1178/
  * I tried to make RBT to inherit from BST or use it as a friend, but its not working. So I had to change BST directly.
- * RBtrees might also be testet[D] at the following links:
+ * RBtrees might also be tested at the following links:
  * * cs.armstrong.edu/liang/animation/web/RBTree.html 
  * * https://www.cs.usfca.edu/~galles/visualization/RedBlack.html
  */
